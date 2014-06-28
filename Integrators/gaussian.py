@@ -3,14 +3,28 @@
 
 import numpy as np
 
-def gaussian_quad_1d():
+def gaussian_quad_1d(a, b, f, n):
     """
     One-dimensional integrator using Gaussian quadrature.
+    INPUT:
+        a,b: End points of interval integration is taken over.
+        f: The integrand passed to the function as a function handle (lambda).
+        n: Number of quadrature nodes. Per June 2014 n need to be in the set {1,2,3,4}
+    OUTPUT:
+        Returns the approximated integral as a real.
     Typical usage:
 
 
     """
+    #Getting out nodes and weights for the referance interval (-1,1):
+    z,w = nodes_and_weights_1d(n)
+    #Scaling nodes and weights for relevant interval (a,b):
+    z = (b + a)/2. + (b - a)/2. * z
+    w = (b - a)/2. * w
 
+    #Returning approximate integral:    
+    return np.inner(w, f(z))
+    
     pass
 
 def nodes_and_weights_1d(n):
