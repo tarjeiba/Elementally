@@ -23,7 +23,6 @@ u_0 = 5
 du_end = 1
 
 
-
 # ASSEMBLY OF STIFFNESS MATRIX:
 # Initialise A-matrix:
 A = np.zeros((len(nodes), len(nodes)))
@@ -55,6 +54,8 @@ print b
 A[0,:] = 0
 A[0,0] = 1
 b[0] = u_0 
-print A
-print b
+# ADDING CONTRIBUTION FROM NEUMANN CONDITION TO LOADING VECTOR:
+b[-1] += du_end
 
+# SOLVING RESULTING SYSTEM:
+u = np.linalg.solve(A,b)
