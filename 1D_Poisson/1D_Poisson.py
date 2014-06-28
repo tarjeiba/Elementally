@@ -6,10 +6,23 @@
 import numpy as np
 import matplotlib as matplot
 
-# Initiating charactestics for a uniform 1D mesh
+# Initiating characteristics for a uniform 1D mesh
 x_0 = 0
 x_N = 10
-num_nodes = 10
-nodes = np.linspace(x_0, x_N, num_nodes)
+num_elements = 10
+nodes = np.linspace(x_0, x_N, num_elements + 1)
+h = x[1] - x[0]
 
+#ASSEMBLY OF STIFFNESS MATRIX:
+#Initialise A-matrix:
+A = np.zeros((len(nodes), len(nodes))
+for i in range(num_elements):
+    A[i,i] = A[i,i] + 1./h
+    A[i,i+1] = A[i,i+1] - 1./h
+    A[i+1,i] = A[i+1,i] - 1./h
+    A[i+1,i+1] = A[i+1,i+1] + 1./h
+
+print "Nodes: "
 print nodes
+print "Stiffness matrix: "
+print A
