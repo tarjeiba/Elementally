@@ -8,6 +8,7 @@ import numpy as np
 from Integrators import gaussian as gauss
 import matplotlib as matplot
 import matplotlib.pyplot as pyplot
+import scipy
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0
@@ -54,7 +55,7 @@ b[0] = u_0
 b[-1] += du_end
 print b
 # SOLVING RESULTING SYSTEM:
-u = np.linalg.solve(A,b)
+u = scipy.linalg.solve(A,b)
 
 # PLOTTING SOLUTION
 pyplot.plot(nodes,u,'b')
