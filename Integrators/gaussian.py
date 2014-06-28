@@ -13,7 +13,9 @@ def gaussian_quad_1d(a, b, f, n):
     OUTPUT:
         Returns the approximated integral as a real.
     Typical usage:
-
+        Example: Suppose you want to integrate exp(x) over the interval (1,2) using 3 nodes.
+        Simply call
+            gaussian_quad_1d(1, 2, lambda x: np.exp(x), 3)
 
     """
     #Getting out nodes and weights for the referance interval (-1,1):
