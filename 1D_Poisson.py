@@ -17,7 +17,10 @@ h = nodes[1] - nodes[0]
 f = lambda x: x
 
 # Setting up the boundary conditions
-
+# Dirichlet on the left end point:
+u_0 = 5
+# Neumann on the right end point:
+du_end = 1
 
 
 
@@ -47,5 +50,11 @@ for i in range(num_elements):
                                    1)
 print "Loading vector:"
 print b
-    
+
+# MODYFYING MATRIX AND LOADING VECTOR FOR DIRICHLET CONDITION:
+A[0,:] = 0
+A[0,0] = 1
+b[0] = u_0 
+print A
+print b
 
