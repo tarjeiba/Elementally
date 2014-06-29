@@ -13,19 +13,33 @@ import numpy as np
 #   Functions creating specific meshs.        |
 #---------------------------------------------|
 
-def quarter_annulus_2D()
+def quarter_annulus_2D(volume_tolerance)
     """
     Function creating a mesh for a quarter of an annulus
-    lying on the first quadrant.
+    lying on the first quadrant. For now, outer radius is set
+    to 2.0 and inner radius 1.0.
     INPUT:
-
+        volume_tolerance: Scalar specifying upper bound for area
+            of each triangle in the mesh.
     OUTPUT:
 
     Typical usage:
     """
-    pass
-
-
+    # Create points for outer radius:
+    points = circle_segment(0., np.pi/2., (0,0), 2.0, 15)
+    # Extending points list to include inner radius:
+    points.extend( circle_segment(np.pi/2., 0., (0,0), 1.0, 15) )
+    num_points = len(points)
+    # Create list of point connectivity:
+    facets = connect_points(0,num_points-1)
+    # Connect end point to starting point:
+    facets.append( (num_points-1, 0) )
+    
+    #Use meshpy.triangle to create mesh:
+    info = triangle.MeshInfo()
+    info.set_points(points)
+    info.set_facets(facets)
+    return triangle.build(info, max_volume = volume_tolerance)
 
 
 #---------------------------------------------|
