@@ -13,7 +13,7 @@ import numpy as np
 #   Functions creating specific meshs.        |
 #---------------------------------------------|
 
-def quarter_annulus_2D(volume_tolerance)
+def quarter_annulus_2D(volume_tolerance):
     """
     Function creating a mesh for a quarter of an annulus
     lying on the first quadrant. For now, outer radius is set
@@ -90,4 +90,4 @@ def connect_points(start_index, end_index):
         Meaning that point_0 is connected to point_1,
         point_1 connected to point_2 and so on.
     """
-    return [(i,i+1) for i in range(start_index, end_index)
+    return [(i,i+1) for i in range(start_index, end_index)]
