@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mesh_kit_2D
 
-mesh = mesh_kit_2D.quarter_annulus_2D(1.)
+mesh = mesh_kit_2D.quarter_annulus_2D(.001, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
 points = np.array(mesh.points)
 tri = np.array(mesh.elements)
 edges = np.array(mesh.facets)
