@@ -28,14 +28,23 @@ def gaussian_quad_1d(a, b, f, n):
     
     pass
 
-def gaussian_quad_2d():
+def gaussian_quad_2d(p1, p2, p3, nq, f):
     """Two-dimensional integrator using Gaussion quadrature.
     INPUT:
-    HOLD
+        p1, p2, p3: Corner points of triangle.
+        nq: Number of quadrature points.
+        f: The integrator passed as a function handle (lambda).
     OUTPUT:
+        Returns the approximated integral as a real.
+    Typical usage:
     HOLD
     """
+    nodes, weights =  nodes_and_weights_2d(nq)
+    
+    coordinates = np.vstack ( (p1, p2, p3) )
+    coordinates = np.dot ( nodes, coordinates )
 
+    
     pass
 
 def nodes_and_weights_1d(nq):
