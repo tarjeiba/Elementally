@@ -38,9 +38,8 @@ def gaussian_quad_2d():
 
     pass
 
-def nodes_and_weights_1d(n):
-    """
-    Takes the number of nodes (from 1 to 4) and returns
+def nodes_and_weights_1d(nq):
+    """Takes the number of nodes (from 1 to 4) and returns
     the nodal positions and their respective weights as
     two distinct np.arrays.
     
@@ -48,19 +47,19 @@ def nodes_and_weights_1d(n):
     """
     z = np.array([])
     w = np.array([])
-    if n == 1:
+    if nq == 1:
         z = np.append(z, 0)
         w = np.append(w, 2)
         return z, w
-    elif n == 2:
+    elif nq == 2:
         z = np.append(z, [-1 * np.sqrt(1./3.), np.sqrt(1./3.)])
         w = np.append(w, [1., 1.])
         return z, w
-    elif n == 3:
+    elif nq == 3:
         z = np.append(z, [-1 * np.sqrt(3./5), 0, np.sqrt(3./5)])
         w = np.append(w, [5./9., 8./9., 5./9.])
         return z, w
-    elif n == 4:
+    elif nq == 4:
         z = np.append(z, [-1 * np.sqrt((3. + 2. * np.sqrt(6./5.)) / 7.),
                           -1 * np.sqrt((3. - 2. * np.sqrt(6./5.)) / 7.),
                           np.sqrt((3. - 2. * np.sqrt(6./5.)) / 7.),
@@ -72,5 +71,36 @@ def nodes_and_weights_1d(n):
         return z, w
     else:
         print "Please use a valid number of nodes"
-        return 0
+        return 1
 
+def nodes_and_weights_2d(nq):
+    """Takes the number of quadrature points (1, 2, or 3) and returns
+    the nodal position and their respective weights as two distinct
+    np.arrays.
+
+    This is to be improved to accept an arbitrary number of quadrature points.
+    """
+
+    if nq == 1:
+        z = np.array([[1./3, 1./3, 1./3]])
+        w = np.array([1.])
+        return z, w
+
+    elif nq == 3:
+        z = np.array([[1./2, 1./2, 0],
+                      [1./2, 0, 1./2],
+                      [0, 1./2, 1./2]])
+        w = np.array([1./3, 1./3, 1./3])
+        return z, w
+
+    elif nq == 4:
+        z = np.array([[1./3, 1./3, 1./3],
+                      [3./5, 1./5, 1./5],
+                      [1./5, 3./5, 1./5],
+                      [1./5, 1./5, 3./5]])
+        w = np.array([-9./16, 25./48, 25./48, 25./48])
+        return z, w
+
+    else:
+        print "Please use a valid number of nodes (1, 3, or 4)."
+        return 1
