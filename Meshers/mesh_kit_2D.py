@@ -31,7 +31,7 @@ def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_
                                np.sqrt(2 * volume_tolerance)) )
     num_points_inner = int( np.ceil(radius_inner * np.abs(angle_end - angle_start) /
                                np.sqrt(2 * volume_tolerance)) )
-    
+    print "RRRRRRRRRRRRRRRRRRRRRRRRRRROP"
     # Create points for outer radius:
     points = circle_segment(angle_start, angle_end, center, radius_outer, num_points_outer)
     # Extending points list to include inner radius:

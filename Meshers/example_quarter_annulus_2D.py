@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mesh_kit_2D
 
-mesh = mesh_kit_2D.quarter_annulus_2D(.001, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
+mesh = mesh_kit_2D.quarter_annulus_2D(.1, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
 points = np.array(mesh.points)
 tri = np.array(mesh.elements)
 edges = np.array(mesh.facets)
@@ -18,3 +18,4 @@ print "  Number of boundary edges: " + str( edges.shape[0])
 #            x-coords     y-coords connectivity
 plt.triplot(points[:,0], points[:,1], tri)
 plt.show()
+print mesh.points
