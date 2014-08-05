@@ -4,8 +4,7 @@
 import numpy as np
 
 def gaussian_quad_1d(a, b, f, n):
-    """
-    One-dimensional integrator using Gaussian quadrature.
+    """One-dimensional integrator using Gaussian quadrature.
     INPUT:
         a,b: End points of interval integration is taken over.
         f: The integrand passed to the function as a function handle (lambda).
@@ -16,8 +15,8 @@ def gaussian_quad_1d(a, b, f, n):
         Example: Suppose you want to integrate exp(x) over the interval (1,2) using 3 nodes.
         Simply call
             gaussian_quad_1d(1, 2, lambda x: np.exp(x), 3)
-
     """
+    
     #Getting out nodes and weights for the referance interval (-1,1):
     z,w = nodes_and_weights_1d(n)
     #Scaling nodes and weights for relevant interval (a,b):
@@ -27,6 +26,16 @@ def gaussian_quad_1d(a, b, f, n):
     #Returning approximate integral:    
     return np.inner(w, f(z))
     
+    pass
+
+def gaussian_quad_2d():
+    """Two-dimensional integrator using Gaussion quadrature.
+    INPUT:
+    HOLD
+    OUTPUT:
+    HOLD
+    """
+
     pass
 
 def nodes_and_weights_1d(n):
