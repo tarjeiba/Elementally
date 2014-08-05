@@ -44,6 +44,9 @@ def gaussian_quad_2d(p1, p2, p3, nq, f):
     coordinates = np.vstack ( (p1, p2, p3) )
     coordinates = np.dot ( nodes, coordinates )
 
+    weights = np.linalg.det( np.vstack( (p2-p1,p3-p1) ) ) * weights
+    return 0.5*np.inner(weights, np.apply_along_axis(f, 1, coordinates) )
+
     
     pass
 
