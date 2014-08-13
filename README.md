@@ -1,5 +1,5 @@
 # Elementally
-The finite element solver ELementally was merely written to get a better grasp
+The finite element solver Elementally was written only to get a better grasp
 of Python, it is not meant to solve any problems not already handled far more
 throroughly elsewhere.
 
