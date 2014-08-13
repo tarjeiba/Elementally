@@ -3,6 +3,10 @@ The finite element solver ELementally was merely written to get a better grasp
 of Python, it is not meant to solve any problems not already handled far more
 throroughly elsewhere.
 
+## Short list of usefull Git commands.
+
+HOLD
+
 ## Status
 As of 13 August 2014, solely the 1D Poisson equation has been fully realized.
 
@@ -24,8 +28,9 @@ Problems-MS-ebook/dp/B00JY5G3T4/ref=sr_1_2?ie=UTF8&qid=1407928272&sr=8-2&
 keywords=quarteroni "Amazon.co.uk"). Page references are made where applicable.
 
 ### The Poisson Equation
+*(Note that Github's markdown parser does not support equations, as such are
+considered an unsafe feature due to their execution of Javascripts.)*
 
-$$\nabla u = f $$
 
 #### Implementation in 1D
 
