@@ -6,24 +6,23 @@
 
 import numpy as np
 from Integrators import gaussian as gauss
-import matplotlib as matplot
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt
 import scipy
+import scipy.linalg as linalg
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0
 x_N = 10
-num_elements = 10
+num_elements = 100
 nodes = np.linspace(x_0, x_N, num_elements + 1)
 h = nodes[1] - nodes[0]
 f = lambda x: x
 print nodes
 # Setting up the boundary conditions
 # Dirichlet on the left end point:
-u_0 = 1
+u_0 = 0.
 # Neumann on the right end point:
-du_end = -1
-
+du_end = -10.
 
 # ASSEMBLY OF STIFFNESS MATRIX:
 # Initialise A-matrix:
@@ -36,7 +35,9 @@ for i in range(num_elements):
 
 # ASSEMBLY OF LOADING VECTOR
 
-b = np.transpose(np.zeros(len(nodes)))
+# b = np.transpose(np.zeros(len(nodes)))
+b = np.zeros(len(nodes))
+
 for i in range(num_elements):
     b[i] += gauss.gaussian_quad_1d(nodes[i], nodes[i+1],
                                    lambda x: ( nodes[i+1] - x ) / h * f(x),
@@ -51,14 +52,27 @@ print b
 A[0,:] = 0
 A[0,0] = 1
 b[0] = u_0 
+print A
 # ADDING CONTRIBUTION FROM NEUMANN CONDITION TO LOADING VECTOR:
 b[-1] += du_end
 print b
 # SOLVING RESULTING SYSTEM:
-u = scipy.linalg.solve(A,b)
+u = linalg.solve(A, b)
+
+print u
+
+
+# Finding the exact solution
+x_exact = scipy.linspace(x_0, x_N, 100)
+u_exact = -1./6 * x_exact ** 3 + ( du_end + 1./2 * x_N ** 2 ) * x_exact + u_0 
 
 # PLOTTING SOLUTION
-pyplot.plot(nodes,u,'b')
-u_exact = -1./6 * nodes ** 3 + 4.8*nodes + 1
-pyplot.plot(nodes,u_exact,'r')
-pyplot.show()
+
+plt.close("all")
+
+fig = plt.figure()
+plt.plot(nodes, u, 'b')
+plt.plot(x_exact, u_exact ,'r')
+plt.show()
+
+print "Bra"
