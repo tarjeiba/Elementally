@@ -23,9 +23,9 @@ As of 13 August 2014, solely the 1D Poisson equation has been fully realized.
 
 ## Software packages
 Elementally leans heavily on the following packages:
-* [Meshpy](mathema.tician.de/software/meshpy "MeshPy")
-* [Scipy](www.scipy.org "Scipy")
-* [Numpy](www.numpy.org "Numpy")
+* [Meshpy](http://mathema.tician.de/software/meshpy "MeshPy")
+* [Scipy](http://www.scipy.org "Scipy")
+* [Numpy](http://www.numpy.org "Numpy")
 
 ## Guidelines
 Since this software is written as a means to learning Python, emphasis is laid
