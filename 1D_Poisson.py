@@ -13,15 +13,11 @@ import scipy.linalg
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0
-x_N = 10
-num_elements = 10
+x_N = 1
+num_elements = 100
 nodes = np.linspace(x_0, x_N, num_elements + 1)
 h = nodes[1] - nodes[0]
 f = lambda x: x
-print nodes
-
-# Establishing one possible exact solution
-u_exact = -1./6 * nodes ** 3 + 4.8*nodes + 1
 
 # Setting up the boundary conditions
 # Dirichlet on the left end point:
@@ -29,6 +25,10 @@ u_0 = 1
 # Neumann on the right end point:
 du_end = -1
 
+# Establishing one possible exact solution
+B = du_end + 0.5*x_N ** 2
+C = 1.0/6.0 * x_0 ** 3 - B * x_0 + u_0
+u_exact = -1./6 * nodes ** 3 + B*nodes + C
 
 # ASSEMBLY OF STIFFNESS MATRIX:
 # Initialise A-matrix:
@@ -49,8 +49,6 @@ for i in range(num_elements):
     b[i+1] += gauss.gaussian_quad_1d(nodes[i], nodes[i+1],
                                    lambda x: ( x - nodes[i] ) / h * f(x),
                                    4)
-print "Loading vector:"
-print b
 
 # MODYFYING MATRIX AND LOADING VECTOR FOR DIRICHLET CONDITION:
 A[0,:] = 0
@@ -58,7 +56,6 @@ A[0,0] = 1
 b[0] = u_0 
 # ADDING CONTRIBUTION FROM NEUMANN CONDITION TO LOADING VECTOR:
 b[-1] += du_end
-print b
 # SOLVING RESULTING SYSTEM:
 u = scipy.linalg.solve(A,b)
 
