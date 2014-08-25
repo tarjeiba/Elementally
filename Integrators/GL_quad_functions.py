@@ -30,3 +30,5 @@ def eval_Legendre_diff ( x, n ):
     OUTPUT:
         P_n'(x): Real.
     """
+    return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** - 1) * eval_Legendre( x, n-1 )
+
