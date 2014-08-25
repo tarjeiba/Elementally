@@ -9,6 +9,7 @@ from Integrators import gaussian as gauss
 import matplotlib as matplot
 import matplotlib.pyplot as pyplot
 import scipy
+import scipy.linalg
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0
@@ -18,6 +19,10 @@ nodes = np.linspace(x_0, x_N, num_elements + 1)
 h = nodes[1] - nodes[0]
 f = lambda x: x
 print nodes
+
+# Establishing one possible exact solution
+u_exact = -1./6 * nodes ** 3 + 4.8*nodes + 1
+
 # Setting up the boundary conditions
 # Dirichlet on the left end point:
 u_0 = 1
@@ -58,7 +63,28 @@ print b
 u = scipy.linalg.solve(A,b)
 
 # PLOTTING SOLUTION
-pyplot.plot(nodes,u,'b')
-u_exact = -1./6 * nodes ** 3 + 4.8*nodes + 1
-pyplot.plot(nodes,u_exact,'r')
-pyplot.show()
+# Using plot objects in stead of single commands
+# This makes two objects. One image object, which is the entire window that opens,
+# and one axes objects, containing the subplots.
+# This supposedly greatly simplifies working with the plots further one.
+fig, axes = plt.subplots(1,1) # To set a single graph in the figure
+
+plotfontsize = 14
+legendfontsize = 12
+
+# Setting the axes object (which is a list if there are multiple plots in one window
+# to plot as above
+
+elemental_plot = axes.plot(nodes, u, label="Elemental solution", color="b")
+exat_plot = axes.plot(nodes, u_exact, label="An exact solution", color="r")
+
+# Handling the legend of the plot
+handles, labels = axes.get_legend_handles_labels()
+# inverting their order
+axes.legend(handles[::-1], labels[::-1], prop={'size':legendfontsize})
+
+axes.set_xlim(nodes[0], nodes[-1])
+axes.set_xlabel("Nodal position (-)", fontsize=plotfontsize, fontweight="normal")
+axes.set_ylabel("Value of $u$ (-)", fontsize=plotfontsize, fontweight="normal")
+
+fig.savefig("1d_poisson_solution.png")
