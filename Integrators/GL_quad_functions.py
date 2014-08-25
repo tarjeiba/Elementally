@@ -22,4 +22,11 @@ def eval_Legendre ( x, n ):
     return P[n]
 
 def eval_Legendre_diff ( x, n ):
+    """Function for evaluating the derivative of the Legendre
+    polynomial of order n.
+    INPUT:
+        x: Real - point to be evaluated.
+        n: Integer - order of Legendre polynomial.
+    OUTPUT:
+        P_n'(x): Real.
     """
