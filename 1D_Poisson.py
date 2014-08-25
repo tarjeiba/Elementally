@@ -7,7 +7,7 @@
 import numpy as np
 from Integrators import gaussian as gauss
 import matplotlib as matplot
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt
 import scipy
 import scipy.linalg
 
