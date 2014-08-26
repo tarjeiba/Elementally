@@ -43,13 +43,12 @@ def GL_nodes_and_weights ( n ):
         w: array of weights.
     """
 
+    z = np.zeros( n )
+    w = np.zeros( n )
     if (n == 1):
-        z = np.array ( [0.0] )
+        z[0] = 0.0
     else:
         A = np.zeros( (n,n) )
-        z = np.zeros( n )
-        w = np.zeros( n )
-    
         A[0,1] = 1
         for i in range(1,n-1):
             A[i,i-1] = i / float(2*i+1)
