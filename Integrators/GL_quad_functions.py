@@ -1,6 +1,7 @@
 #This file contains functions used for getting nodes and weights
 #to be used in Gaussian quadratures.
 import numpy as np
+import scipy
 
 def eval_Legendre ( x, n ):
     """This function evaluates the Legendre polynomial
@@ -32,3 +33,27 @@ def eval_Legendre_diff ( x, n ):
     """
     return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** - 1) * eval_Legendre( x, n-1 )
 
+def GL_nodes_and_weights ( n ):
+    """Function for finding nodes and weights
+    for n-point Gaussian quadrature.
+    INPUT:
+        n: Integer - how many points to be used in the ensuing quadratures.
+    OUTPUT:
+        z: array of points.
+        w: array of weights.
+    """
+    A = np.zeros( (n,n) )
+    z = np.zeros( n )
+    w = np.zeros( n )
+
+    A[0,1] = 1
+    for i in range(1,n-1):
+        A[i,i-1] = i / float(2*i+1)
+        A[i,i+1] = (i+1) / float(2*i+1)
+
+    A[-1,-2] = (n-1) / float(2*n-1)
+    z = np.sort( scipy.linalg.eig(A, right=False) )
+    for i in range(n):
+        w[i] = 2. / ( (1-z[i] ** 2) * (eval_Legendre_diff( z[i], n )**2) )
+
+    return z, w
