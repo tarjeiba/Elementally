@@ -1,7 +1,7 @@
 #This file contains functions used for getting nodes and weights
 #to be used in Gaussian quadratures.
 import numpy as np
-import scipy
+import scipy.linalg as la
 
 def eval_Legendre ( x, n ):
     """This function evaluates the Legendre polynomial
@@ -15,11 +15,11 @@ def eval_Legendre ( x, n ):
     """
     P = np.zeros(n+1)
     P[0] = 1.0
-    P[1] = x
-
-    for i in range(1,n-1):
-        P[i+1] = ( (2*i+1) * x * P[i] - i * P[i-1] ) / float(i+1)
-
+    if (n>=1):
+        P[1] = x
+        for i in range(1,n):
+            P[i+1] = ( (2*i+1) * x * P[i] - i * P[i-1] ) / float(i+1)
+    
     return P[n]
 
 def eval_Legendre_diff ( x, n ):
@@ -31,7 +31,7 @@ def eval_Legendre_diff ( x, n ):
     OUTPUT:
         P_n'(x): Real.
     """
-    return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** - 1) * eval_Legendre( x, n-1 )
+    return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** 2 - 1) * eval_Legendre( x, n-1 )
 
 def GL_nodes_and_weights ( n ):
     """Function for finding nodes and weights
@@ -42,17 +42,22 @@ def GL_nodes_and_weights ( n ):
         z: array of points.
         w: array of weights.
     """
-    A = np.zeros( (n,n) )
-    z = np.zeros( n )
-    w = np.zeros( n )
 
-    A[0,1] = 1
-    for i in range(1,n-1):
-        A[i,i-1] = i / float(2*i+1)
-        A[i,i+1] = (i+1) / float(2*i+1)
+    if (n == 1):
+        z = np.array ( [0.0] )
+    else:
+        A = np.zeros( (n,n) )
+        z = np.zeros( n )
+        w = np.zeros( n )
+    
+        A[0,1] = 1
+        for i in range(1,n-1):
+            A[i,i-1] = i / float(2*i+1)
+            A[i,i+1] = (i+1) / float(2*i+1)
 
-    A[-1,-2] = (n-1) / float(2*n-1)
-    z = np.sort( scipy.linalg.eig(A, right=False) )
+        A[-1,-2] = (n-1) / float(2*n-1)
+        z = np.sort( la.eig(A, right=False) ).real
+
     for i in range(n):
         w[i] = 2. / ( (1-z[i] ** 2) * (eval_Legendre_diff( z[i], n )**2) )
 
