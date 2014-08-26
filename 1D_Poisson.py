@@ -6,10 +6,15 @@
 
 import numpy as np
 from Integrators import gaussian as gauss
+from Integrators import GL_quad_functions as gl
 import matplotlib as matplot
 import matplotlib.pyplot as plt
 import scipy
 import scipy.linalg
+
+#Set order for quadrature and get nodes and weights:
+n = 4
+z, w = gl.GL_nodes_and_weights ( n )
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0
@@ -18,6 +23,7 @@ num_elements = 100
 nodes = np.linspace(x_0, x_N, num_elements + 1)
 h = nodes[1] - nodes[0]
 f = lambda x: x
+
 
 # Setting up the boundary conditions
 # Dirichlet on the left end point:
@@ -45,10 +51,12 @@ b = np.transpose(np.zeros(len(nodes)))
 for i in range(num_elements):
     b[i] += gauss.gaussian_quad_1d(nodes[i], nodes[i+1],
                                    lambda x: ( nodes[i+1] - x ) / h * f(x),
-                                   4)
+                                   z,
+                                   w)
     b[i+1] += gauss.gaussian_quad_1d(nodes[i], nodes[i+1],
                                    lambda x: ( x - nodes[i] ) / h * f(x),
-                                   4)
+                                   z,
+                                   w)
 
 # MODYFYING MATRIX AND LOADING VECTOR FOR DIRICHLET CONDITION:
 A[0,:] = 0
@@ -85,3 +93,4 @@ axes.set_xlabel("Nodal position (-)", fontsize=plotfontsize, fontweight="normal"
 axes.set_ylabel("Value of $u$ (-)", fontsize=plotfontsize, fontweight="normal")
 
 fig.savefig("1d_poisson_solution.png")
+plt.show()
