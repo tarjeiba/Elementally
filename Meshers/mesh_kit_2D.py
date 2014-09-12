@@ -33,25 +33,12 @@ def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_
                                np.sqrt(2 * volume_tolerance)) )
 
     num_points_line = int( np.ceil( np.abs(radius_outer - radius_inner) /
-                                np.sqrt(2 * volume_tolerance)) )+1
+                                np.sqrt(2 * volume_tolerance)) )+100
     # Create points for outer radius:
     points = circle_segment(angle_start, angle_end, center, radius_outer, num_points_outer)
-    #Creating points between the two circle segments:
-    start = ( radius_outer * np.cos(angle_end) + center[0], radius_outer * np.sin(angle_end)+center[1] )
-    end = ( radius_inner * np.cos(angle_end) + center[0], radius_inner * np.sin(angle_end) + center[1] )
-    temp = np.linspace( 0, 1, num_points_line )
-    for i in xrange(1,num_points_line-1):
-        temp_point = ( (end[0]-start[0])*temp[i] + start[0], (end[1]-start[1])*temp[i] + start[1] )
-        points.append( temp_point )
     # Extending points list to include inner radius:
     points.extend( circle_segment(angle_end, angle_start, center, radius_inner, num_points_inner) )
-    # Extend list to include last line segment:
-    start = ( radius_inner * np.cos(angle_start) + center[0], radius_inner * np.sin(angle_start) + center[1] )
-    end = ( radius_outer * np.cos(angle_start) + center[0], radius_inner * np.sin(angle_start) + center[1] )
-    for i in xrange(1,num_points_line-1):
-        temp_point = ( (end[0]-start[0])*temp[i] + start[0], (end[1]-start[1])*temp[i] + start[1]  )
-        points.append( temp_point )
-     
+
     num_points = len(points)
     # Create list of point connectivity:
     facets = connect_points(0,num_points-1)

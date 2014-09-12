@@ -32,7 +32,7 @@ def h(x):
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, 3.*np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = mesh_kit.quarter_annulus_2D( 0.05, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:
@@ -76,7 +76,8 @@ for i in np.unique(np.array(mesh.facets)):
 #   SOLVE THE SYSTEM:
 ###########################
 
-print np.array(mesh.facets)
+for face in mesh.facets:
+    print face, points[face[0],:], points[face[1],:]
 u = la.solve(A, b)
 fig1 = plt.figure(1)
 ax = fig1.gca(projection='3d')
@@ -85,4 +86,7 @@ ax.plot_trisurf(points[:,0], points[:,1], u, cmap=cm.jet, linewidth=0.2)
 
 plt.show(1)
 
+fig2 = plt.figure(2)
+plt.triplot(points[:,0],points[:,1], np.array(mesh.elements))
+plt.show(2)
 
