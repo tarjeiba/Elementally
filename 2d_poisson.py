@@ -9,6 +9,8 @@ import numpy.linalg as la
 from Integrators import gaussian as gauss
 from Meshers import mesh_kit_2D as mesh_kit
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from mpl_toolkits.mplot3d import Axes3D
 
 ###########################
 # SET UP PARAMETERS:
@@ -16,7 +18,7 @@ import matplotlib.pyplot as plt
 
 # Poisson function:
 def f(x):
-    return -1.
+    return -1.0
 
 # Dirichlet function:
 def g(x):
@@ -30,7 +32,7 @@ def h(x):
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, 3.*np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:
@@ -65,8 +67,7 @@ for element in mesh.elements:
 
 # Finding all points on the boundary
 
-for facet in mesh.facets:
-    i = facet[0]
+for i in np.unique(np.array(mesh.facets)):
     A[i, :] = 0
     A[i, i] = 1
     b[i] = g(points[i, :])
@@ -75,4 +76,13 @@ for facet in mesh.facets:
 #   SOLVE THE SYSTEM:
 ###########################
 
+print np.array(mesh.facets)
 u = la.solve(A, b)
+fig1 = plt.figure(1)
+ax = fig1.gca(projection='3d')
+
+ax.plot_trisurf(points[:,0], points[:,1], u, cmap=cm.jet, linewidth=0.2)
+
+plt.show(1)
+
+
