@@ -76,8 +76,6 @@ for i in np.unique(np.array(mesh.facets)):
 #   SOLVE THE SYSTEM:
 ###########################
 
-for face in mesh.facets:
-    print face, points[face[0],:], points[face[1],:]
 u = la.solve(A, b)
 fig1 = plt.figure(1)
 ax = fig1.gca(projection='3d')
@@ -86,7 +84,7 @@ ax.plot_trisurf(points[:,0], points[:,1], u, cmap=cm.jet, linewidth=0.2)
 
 plt.show(1)
 
-fig2 = plt.figure(2)
-plt.triplot(points[:,0],points[:,1], np.array(mesh.elements))
-plt.show(2)
+for facet in mesh.facets:
+    print facet, mesh_kit.check_facet_direction(facet, mesh.elements, points)
+
 

@@ -8,6 +8,7 @@
 
 import meshpy.triangle as triangle
 import numpy as np
+import numpy.linalg as la
 
 #---------------------------------------------|
 #   Functions creating specific meshs.        |
@@ -102,7 +103,7 @@ def connect_points(start_index, end_index):
     """
     return [(i,i+1) for i in range(start_index, end_index)]
 
-def find_interior_point(facet, element_array):
+def facet_interior_point(facet, element_array):
     """
     For a vector facet on the form of (p0, p1), return the remaining third index (the interior point)
     from the element array of the mesh.
@@ -113,7 +114,43 @@ def find_interior_point(facet, element_array):
         integer value of remaining index
     """
     for element in element_array:
-        if np.all(np.intersect1d(facet, element) == facet):
-            return np.diffset1d(element, facet)[0]
+        if np.all(np.intersect1d(facet, element) == np.sort(facet)):
+            return np.setdiff1d(element, facet)[0]
     else:
         print "Did not find any elements containing both indices {0}".format(facet)
+
+def check_facet_direction(facet, element_array, points):
+    """
+    For a vector facet (i,j), check if going from point i to point j,
+    is in the counterclock direction.
+    INPUT:
+        facet - tuple of two indices.
+        element_array - array (n, 3) size, where n is the number of elements in the mesh.
+        points - array (m, 2) size, where m is the number of points in the mesh.
+    OUTPUT:
+        Returns True if going from i to j is in the counterclockwise direction.
+    """
+    point1 = points[facet[0],:]
+    point2 = points[facet[1],:]
+    point3 = points[facet_interior_point(facet,element_array),:]
+    T = np.vstack ( (point2-point1, point3-point1) )
+    return ( la.det(T) > 0.)
+
+def facet_orientation(facets, element_array, points):
+    """
+    Checks direction on all facets, and returns an updated list
+    of facets.
+    INPUT:
+        facets - list of tuples with facets.
+        elements_array - n*3 array, where n is number of elements.
+        points - m*2 array, where m is number of points.
+    OUTPUT:
+        updated_facets - list of facets with updated orientation.
+    """
+    updated_facets = []
+    for facet in facets:
+        if check_facet_direction(facet, element_array, points):
+            updated_facets.append(facet)
+        else:
+            updated_facets.append( [facet[1], facet[0] ] )
+    return updated_facets
