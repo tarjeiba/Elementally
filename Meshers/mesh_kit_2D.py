@@ -13,7 +13,7 @@ import numpy as np
 #   Functions creating specific meshs.        |
 #---------------------------------------------|
 
-def quarter_annulus_2D(volume_tolerance):
+def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_inner, radius_outer):
     """
     Function creating a mesh for a quarter of an annulus
     lying on the first quadrant. For now, outer radius is set
@@ -25,11 +25,19 @@ def quarter_annulus_2D(volume_tolerance):
 
     Typical usage:
     """
+
+    # preprocessing
+    num_points_outer = int( np.ceil(radius_outer * np.abs(angle_end - angle_start) /
+                               np.sqrt(2 * volume_tolerance)) )
+    num_points_inner = int( np.ceil(radius_inner * np.abs(angle_end - angle_start) /
+                               np.sqrt(2 * volume_tolerance)) )
+    print "RRRRRRRRRRRRRRRRRRRRRRRRRRROP"
     # Create points for outer radius:
-    points = circle_segment(0., np.pi/2., (0,0), 2.0, 15)
+    points = circle_segment(angle_start, angle_end, center, radius_outer, num_points_outer)
     # Extending points list to include inner radius:
-    points.extend( circle_segment(np.pi/2., 0., (0,0), 1.0, 15) )
+    points.extend( circle_segment(angle_end, angle_start, center, radius_inner, num_points_inner) )
     num_points = len(points)
+    print num_points
     # Create list of point connectivity:
     facets = connect_points(0,num_points-1)
     # Connect end point to starting point:
