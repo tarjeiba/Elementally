@@ -8,14 +8,32 @@ import numpy as np
 from Integrators import gaussian as gauss
 import matplotlib.pyplot as plt
 
-p1 = np.array([0., 1.])
-p2 = np.array([1., 1.])
-p3 = np.array([1., 2.])
+###########################
+#SET UP PARAMETERS:
+##########################
 
-nq = 4
 
-def f(x):
-#    return np.exp(np.sum(x))
-    return 1
+##########################
+#GENERATE MESH DOMAIN:
+##########################
 
-print gauss.gaussian_quad_2d(p1, p2, p3, nq, f)
+##########################
+# ASSEMBLY:
+##########################
+
+#Needs: Line integral (for loading vector).
+#   2D quadrature for stiffness matrix and load vector.
+#   Our understanding of the data structure.
+
+##########################
+# BOUNDARY CONDITIONS:
+##########################
+
+#Dirichlet part: degrees of freedom are removed and values of U set.
+#Neumann part: Additional contributions to the loading vector.
+
+###########################
+#   SOLVE THE SYSTEM:
+###########################
+
+
