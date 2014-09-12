@@ -29,12 +29,7 @@ def h(x):
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2D( 0.1 )
-
-points = np.array(mesh.points)
-print np.array(mesh.facets)
-for face in np.array(mesh.facets):
-    print face, mesh.points[face[0]], mesh.points[face[1]]
+mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
 
 plt.triplot(points[:,0], points[:,1],np.array(mesh.elements))
 plt.show()
