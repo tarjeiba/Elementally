@@ -33,13 +33,18 @@ def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_
     num_points_inner = int( np.ceil(radius_inner * np.abs(angle_end - angle_start) /
                                np.sqrt(2 * volume_tolerance)) )
 
-    num_points_line = int( np.ceil( np.abs(radius_outer - radius_inner) /
-                                np.sqrt(2 * volume_tolerance)) )+100
+    facet_markers = []
     # Create points for outer radius:
     points = circle_segment(angle_start, angle_end, center, radius_outer, num_points_outer)
+    # Boundary markers:
+    #   1: Neumann boundary.
+    #   2: Dirichlet boundary.
+    facet_markers.extend( [1] * (num_points_outer - 1) )
     # Extending points list to include inner radius:
     points.extend( circle_segment(angle_end, angle_start, center, radius_inner, num_points_inner) )
-
+    facet_markers.append(2)
+    facet_markers.extend( [1] * (num_points_inner - 1) )
+    facet_markers.append(2)
     num_points = len(points)
     # Create list of point connectivity:
     facets = connect_points(0,num_points-1)
@@ -49,7 +54,7 @@ def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_
     #Use meshpy.triangle to create mesh:
     info = triangle.MeshInfo()
     info.set_points(points)
-    info.set_facets(facets)
+    info.set_facets(facets, facet_markers)
     return triangle.build(info, max_volume = volume_tolerance)
 
 
