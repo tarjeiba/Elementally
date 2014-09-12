@@ -115,3 +115,23 @@ def nodes_and_weights_2d(nq):
     else:
         print "Please use a valid number of nodes (1, 3, or 4)."
         return 1
+
+
+def gaussian_line(start, end, nodes, weights, f):
+    """Calculates the numerical line integral of the function f from start to end, using pre-defined
+    nodes and weights.
+    INPUT:
+        start, end: one-dimensional vectors in R2
+        nodes, weights: one-dimensional vector of arbitrary length
+        f: function handle returning a scalar
+    OUTPUT:
+        Approximate integral as a real
+    """
+    # Finding the world coordinate evaluation points
+    world_nodes = np.outer(nodes, (end - start)/2.) + (end + start) / 2.
+    world_weights = np.sqrt(np.inner(end - start, end - start)) * weights / 2.
+
+    # Applying the function f along each row of the wolrd_nodes matrix
+    evals = np.apply_along_axis(f, 1, world_nodes)
+
+    return np.inner(world_weights, evals)
