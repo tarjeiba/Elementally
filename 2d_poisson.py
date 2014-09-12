@@ -5,7 +5,7 @@
 #
 
 import numpy as np
-impoty numpy.linalg as la
+import numpy.linalg as la
 from Integrators import gaussian as gauss
 from Meshers import mesh_kit_2D as mesh_kit
 import matplotlib.pyplot as plt
@@ -47,16 +47,15 @@ for element in mesh.elements:
     # Inverting the matrix of coordinates results in the coefficients for the three test
     # functions that are non-zero on this element
     coefficients = la.inv(coordinates)
-    area = gauss.gaussian_quad_2d(coord_i, coord_j, coord_k, 1, 1.)
+    area = gauss.gaussian_quad_2d(coord_i, coord_j, coord_k, 1,lambda x: 1.)
     for alpha in xrange(3):
         i = element[alpha]
-        integrand = lambda x: f(x) * np.inner(ceofficients[:, i], np.append([1], x))
+        integrand = lambda x: f(x) * np.inner(coefficients[:, alpha], np.append([1], x))
         b[i] += gauss.gaussian_quad_2d(coord_i, coord_j, coord_k, 4, integrand)
         for beta in xrange(3):
             j = element[beta]
             A[i, j] += np.inner(coefficients[1:, alpha], coefficients[1:, beta]) * area
 
-    
 ##########################
 # BOUNDARY CONDITIONS:
 ##########################
