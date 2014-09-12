@@ -35,6 +35,7 @@ mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
 ##########################
 # ASSEMBLY:
 ##########################
+
 points = np.array(mesh.points)
 A = np.zeros((len(mesh.points), len(mesh.points)))
 b = np.zeros(len(mesh.points))
@@ -60,11 +61,18 @@ for element in mesh.elements:
 # BOUNDARY CONDITIONS:
 ##########################
 
-#Dirichlet part: degrees of freedom are removed and values of U set.
-#Neumann part: Additional contributions to the loading vector.
+# To be improved: Include Neumann boundary
+
+# Finding all points on the boundary
+
+for facet in mesh.facets:
+    i = facet[0]
+    A[i, :] = 0
+    A[i, i] = 1
+    b[i] = g(points[i, :])
 
 ###########################
 #   SOLVE THE SYSTEM:
 ###########################
 
-
+u = la.solve(A, b)
