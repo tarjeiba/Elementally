@@ -101,3 +101,19 @@ def connect_points(start_index, end_index):
         point_1 connected to point_2 and so on.
     """
     return [(i,i+1) for i in range(start_index, end_index)]
+
+def find_interior_point(facet, element_array):
+    """
+    For a vector facet on the form of (p0, p1), return the remaining third index (the interior point)
+    from the element array of the mesh.
+    INPUT:
+        facet - tuple of two indeces
+        element_array - array (n, 3) size, where n is the number of elements in the mesh
+    OUTPUT:
+        integer value of remaining index
+    """
+    for element in element_array:
+        if np.all(np.intersect1d(facet, element) == facet):
+            return np.diffset1d(element, facet)[0]
+    else:
+        print "Did not find any elements containing both indices {0}".format(facet)
