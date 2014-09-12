@@ -34,12 +34,12 @@ mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
 ##########################
 # ASSEMBLY:
 ##########################
-
+points = np.array(mesh.points)
 A = np.zeros((len(mesh.points), len(mesh.points)))
 b = np.zeros(len(mesh.points))
 
 for element in mesh.elements:
-    coord_i, coord_j, coord_k = mesh.points[element]
+    coord_i, coord_j, coord_k = points[element, :]
     
 
 ##########################
