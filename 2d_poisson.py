@@ -19,7 +19,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # Poisson function:
 def f(x):
-    return -1.0
+    return 1.
 
 # Dirichlet function:
 def g(x):
@@ -36,7 +36,7 @@ nodes, weights = gl.GL_nodes_and_weights(nq)
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:
@@ -97,10 +97,10 @@ u = la.solve(A, b)
 fig1 = plt.figure(1)
 ax = fig1.gca(projection='3d')
 
-ax.plot_trisurf(points[:,0], points[:,1], u, cmap=cm.jet, linewidth=0.2)
+ax.plot_trisurf(points[:,0], points[:,1], u, triangles = mesh.elements, cmap=cm.jet, linewidth=0.2)
 
 plt.show(1)
 
-print mesh.facets
-for i, facet in enumerate(mesh.facets):
-    print facet, mesh.facet_markers[i]
+#print mesh.facets
+#for i, facet in enumerate(mesh.facets):
+#    print facet, mesh.facet_markers[i]
