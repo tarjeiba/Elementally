@@ -33,7 +33,7 @@ def eval_Legendre_diff ( x, n ):
     """
     return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** 2 - 1) * eval_Legendre( x, n-1 )
 
-def GL_nodes_and_weights ( n ):
+def gl_nodes_and_weights ( n ):
     """Function for finding nodes and weights
     for n-point Gaussian quadrature.
     INPUT:

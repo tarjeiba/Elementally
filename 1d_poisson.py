@@ -5,8 +5,8 @@
 #
 
 import numpy as np
-from Integrators import gaussian as gauss
-from Integrators import GL_quad_functions as gl
+from integrators import gaussian as gauss
+from integrators import gl_quad_functions as gl
 import matplotlib as matplot
 import matplotlib.pyplot as plt
 import scipy
@@ -14,7 +14,7 @@ import scipy.linalg as linalg
 
 #Set order for quadrature and get nodes and weights:
 n = 4
-z, w = gl.GL_nodes_and_weights ( n )
+z, w = gl.gl_nodes_and_weights ( n )
 
 # Initiating characteristics for a uniform 1D mesh
 x_0 = 0

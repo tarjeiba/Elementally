@@ -6,9 +6,9 @@
 
 import numpy as np
 import numpy.linalg as la
-from Integrators import gaussian as gauss
-from Integrators import GL_quad_functions as gl
-from Meshers import mesh_kit_2D as mesh_kit
+from integrators import gaussian as gauss
+from integrators import gl_quad_functions as gl
+from meshers import mesh_kit_2d as mesh_kit
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
@@ -31,12 +31,12 @@ def h(x):
 
 # Order of Gaussian quadrature:
 nq = 4
-nodes, weights = gl.GL_nodes_and_weights(nq)
+nodes, weights = gl.gl_nodes_and_weights(nq)
 ##########################
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2D( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = mesh_kit.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:

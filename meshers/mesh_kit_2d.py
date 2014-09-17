@@ -14,7 +14,7 @@ import numpy.linalg as la
 #   Functions creating specific meshs.        |
 #---------------------------------------------|
 
-def quarter_annulus_2D(volume_tolerance, angle_start, angle_end, center, radius_inner, radius_outer):
+def quarter_annulus_2d(volume_tolerance, angle_start, angle_end, center, radius_inner, radius_outer):
     """
     Function creating a mesh for a quarter of an annulus
     lying on the first quadrant. For now, outer radius is set

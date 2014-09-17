@@ -5,9 +5,9 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import mesh_kit_2D
+import mesh_kit_2d
 
-mesh = mesh_kit_2D.quarter_annulus_2D(.1, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
+mesh = mesh_kit_2d.quarter_annulus_2d(.1, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
 points = np.array(mesh.points)
 tri = np.array(mesh.elements)
 edges = np.array(mesh.facets)
