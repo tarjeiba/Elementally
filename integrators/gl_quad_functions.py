@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.linalg as la
 
-def eval_Legendre ( x, n ):
+def eval_legendre ( x, n ):
     """This function evaluates the Legendre polynomial
     of order n at the point x.
     Uses the recursion relation for evaluating.
@@ -22,7 +22,7 @@ def eval_Legendre ( x, n ):
     
     return P[n]
 
-def eval_Legendre_diff ( x, n ):
+def eval_legendre_diff ( x, n ):
     """Function for evaluating the derivative of the Legendre
     polynomial of order n.
     INPUT:
@@ -31,7 +31,7 @@ def eval_Legendre_diff ( x, n ):
     OUTPUT:
         P_n'(x): Real.
     """
-    return n*x/(x ** 2 -1 ) * eval_Legendre( x, n ) -n/(x ** 2 - 1) * eval_Legendre( x, n-1 )
+    return n*x/(x ** 2 -1 ) * eval_legendre( x, n ) -n/(x ** 2 - 1) * eval_legendre( x, n-1 )
 
 def gl_nodes_and_weights ( n ):
     """Function for finding nodes and weights
@@ -58,6 +58,6 @@ def gl_nodes_and_weights ( n ):
         z = np.sort( la.eig(A, right=False) ).real
 
     for i in range(n):
-        w[i] = 2. / ( (1-z[i] ** 2) * (eval_Legendre_diff( z[i], n )**2) )
+        w[i] = 2. / ( (1-z[i] ** 2) * (eval_legendre_diff( z[i], n )**2) )
 
     return z, w

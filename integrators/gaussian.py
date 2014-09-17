@@ -135,3 +135,4 @@ def gaussian_line(start, end, nodes, weights, f):
     evals = np.apply_along_axis(f, 1, world_nodes)
 
     return np.inner(world_weights, evals)
+
