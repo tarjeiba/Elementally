@@ -2,10 +2,25 @@
 # and plots the resulting mesh using matplotlib.
 #
 # Created 29.6 2014
+#
+# Modified: October 2014
+# First attempt to include inheritance from Meshpy's triangle class to,
+# hopefully, make it easier to keep working object oriented.
+# 
+
+
 
 import numpy as np
 import matplotlib.pyplot as plt
 import mesh_kit_2d
+
+
+class ElementallyTriangle(mesh_kit_2d.triangle.MeshInfo):
+    pass
+
+
+
+
 
 mesh = mesh_kit_2d.quarter_annulus_2d(.1, np.pi/2, np.pi/4, (0, 0), 1.0, 2.0)
 points = np.array(mesh.points)
