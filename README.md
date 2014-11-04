@@ -20,6 +20,7 @@ repository.
 
 ## Status
 As of 13 August 2014, solely the 1D Poisson equation has been fully realized.
+As of October 2014, a solver for the 2D Poisson equation has also been implemented.
 
 ## Software packages
 Elementally leans heavily on the following packages:
