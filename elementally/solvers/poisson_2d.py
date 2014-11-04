@@ -6,13 +6,13 @@
 
 import numpy as np
 import numpy.linalg as la
-from integrators import gaussian as gauss
-from integrators import gl_quad_functions as gl
 from meshers import mesh_kit_2d as mesh_kit
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
+from integrators import gaussian as gauss
+from integrators import gl_quad_functions as gl
 ###########################
 # SET UP PARAMETERS:
 ##########################

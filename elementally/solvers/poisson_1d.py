@@ -5,12 +5,13 @@
 #
 
 import numpy as np
-from integrators import gaussian as gauss
-from integrators import gl_quad_functions as gl
 import matplotlib as matplot
 import matplotlib.pyplot as plt
 import scipy
 import scipy.linalg as linalg
+
+from integrators import gaussian as gauss
+from integrators import gl_quad_functions as gl
 
 #Set order for quadrature and get nodes and weights:
 n = 4
