@@ -110,6 +110,30 @@ for i, facet in enumerate(updated_facets):
         b[facet[0]] = g(points[facet[0],:])
         b[facet[1]] = g(points[facet[1],:])
 
+#########################################################
+#       SOLVING AND ANIMATING:
+#########################################################
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+surf = None
+t = t_start
+while (t<t_stop):
+    oldcol = surf
+
+    c = la.solve(W1, np.dot(W2, c) + b)
+    surf = ax.plot_trisurf(points[:,0], points[:,1], c,
+                            triangles = mesh.elements,
+                            cmap=cm.jet, linewidth=0.2)
+
+
+    if oldcol is not None:
+        ax.collections.remove(oldcol)
+
+    plt.pause(0.01)
+    t += dt
+
+
+
 def plot_init():
     pass
 
@@ -121,27 +145,10 @@ def step(t, dt, c, W1, W2):
     c = la.solve(W1, np.dot(W2, c_0) + b)
     return c
 
-###########################
-#   SOLVE THE SYSTEM:
-###########################
 
 
 
 
-t = t_start
-plot_init()
-fig1 = plt.figure(1)
-ax = fig1.gca(projection='3d')
-ax.plot_trisurf(points[:,0], points[:,1], c, triangles = mesh.elements, cmap=cm.jet, linewidth=0.2)
-plt.show(1)
-while t < t_stop:
-    c = step(t, dt, c, W1, W2)
-    plt.cla()
-    ax.plot_trisurf(points[:,0], points[:,1], c, triangles = mesh.elements, cmap=cm.jet, linewidth=0.2)
-    plt.draw()
-
-    t += dt
-    
 
 
 
