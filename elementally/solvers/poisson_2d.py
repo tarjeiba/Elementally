@@ -11,8 +11,11 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
+from assemblers import stiffness
+from assemblers import loading
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
+
 ###########################
 # SET UP PARAMETERS:
 ##########################
@@ -32,6 +35,7 @@ def h(x):
 # Order of Gaussian quadrature:
 nq = 4
 nodes, weights = gl.gl_nodes_and_weights(nq)
+
 ##########################
 # GENERATE MESH DOMAIN:
 ##########################
@@ -47,21 +51,8 @@ A = np.zeros((len(mesh.points), len(mesh.points)))
 b = np.zeros(len(mesh.points))
 
 for element in mesh.elements:
-    # i, j, and k are the indices of the points defining the triangular element
-    coord_i, coord_j, coord_k = points[element, :]
-    coordinates = np.ones((3, 3))
-    coordinates[:, 1:] = np.vstack((coord_i, coord_j, coord_k))
-    # Inverting the matrix of coordinates results in the coefficients for the three test
-    # functions that are non-zero on this element
-    coefficients = la.inv(coordinates)
-    area = gauss.gaussian_quad_2d(coord_i, coord_j, coord_k, 1,lambda x: 1.)
-    for alpha in xrange(3):
-        i = element[alpha]
-        integrand = lambda x: f(x) * np.inner(coefficients[:, alpha], np.append([1], x))
-        b[i] += gauss.gaussian_quad_2d(coord_i, coord_j, coord_k, 4, integrand)
-        for beta in xrange(3):
-            j = element[beta]
-            A[i, j] += np.inner(coefficients[1:, alpha], coefficients[1:, beta]) * area
+    A[np.ix_(element, element)] += stiffness.local_stiffness_2d(points[element])
+    b[element] += loading.local_loading_2d(points[element], f)
 
 ##########################
 # BOUNDARY CONDITIONS:
