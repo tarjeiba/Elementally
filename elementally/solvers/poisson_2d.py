@@ -102,6 +102,10 @@ print "Solving linear system: ", time.time() - time1
 fig1 = plt.figure(1)
 ax = fig1.gca(projection='3d')
 
+ax.plot_trisurf(points[:,0], points[:,1], u,
+                triangles = mesh.elements,
+                cmap=cm.jet, linewidth=0.2)
+
 plt.show(1)
 
 #print mesh.facets
