@@ -10,6 +10,7 @@ from meshers import mesh_kit_2d as mesh_kit
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
+import time
 
 from assemblers import stiffness
 from assemblers import loading
@@ -50,14 +51,24 @@ points = np.array(mesh.points)
 A = np.zeros((len(mesh.points), len(mesh.points)))
 b = np.zeros(len(mesh.points))
 
+time1 = time.time()
 for element in mesh.elements:
     A[np.ix_(element, element)] += stiffness.local_stiffness_2d(points[element])
     b[element] += loading.local_loading_2d(points[element], f)
 
+time2 = time.time()
+print "Mesh data:"
+print " Number of points: ", len(points)
+print " Number of elements: ", len(mesh.elements)
+print "-----------------------"
+print " "
+print "Assembly time: ", time2-time1
+
+
 ##########################
 # BOUNDARY CONDITIONS:
 ##########################
-
+time1 = time.time()
 updated_facets = mesh_kit.facet_orientation(mesh.facets, mesh.elements, points)
 # Neumann boundary:
 for i, facet in enumerate(updated_facets):
@@ -80,11 +91,14 @@ for i, facet in enumerate(updated_facets):
         b[facet[0]] = g(points[facet[0],:])
         b[facet[1]] = g(points[facet[1],:])
 
+time2 = time.time()
+print "Imposing BC: ", time2-time1
 ###########################
 #   SOLVE THE SYSTEM:
 ###########################
-
+time1 = time.time()
 u = la.solve(A, b)
+print "Solving linear system: ", time.time() - time1
 fig1 = plt.figure(1)
 ax = fig1.gca(projection='3d')
 
