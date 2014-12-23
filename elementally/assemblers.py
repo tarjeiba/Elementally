@@ -3,7 +3,7 @@ import numpy.linalg as la
 
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
-from meshers import mesh_kit_2d as mesh_kit
+import meshers
 
 class Assembly(object):
 
@@ -35,8 +35,6 @@ class Assembly_2d(Assembly):
     def __init__(self, mesh):
         super(Assembly_2d, self).__init__()
         self.points = np.array(mesh.points)
-        self.updated_facets = mesh_kit.facet_orientation(mesh.facets,
-                                  mesh.elements, self.points)
 
     def local_mass(self, local_points):
         """Takes in a meshpy.MeshInfo object and returns a corresponding mass

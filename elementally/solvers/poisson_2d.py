@@ -6,20 +6,29 @@
 
 import numpy as np
 import numpy.linalg as la
-from meshers import mesh_kit_2d as mesh_kit
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import time
 
-# from assemblers import stiffness
-# from assemblers import loading
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
 
 import assemblers
+import meshers
 
-###########################
+##########################
+# BOUNDARY CONDITIONS
+##########################
+
+boundaries = {
+    'dir': [(1, g1),
+            (2, g2)],
+    'neu': [(3, h1)]
+    }
+
+
+##########################
 # SET UP PARAMETERS:
 ##########################
 
@@ -31,6 +40,11 @@ def f(x):
 def g(x):
     return 0.
 
+def g1(x):
+    return 0.
+
+def g2(x, t):
+    return 1. * np.sin(4 * np.pi * t / t_stop)
 # Neumann function:
 def h(x):
     return 0.
@@ -42,8 +56,7 @@ nodes, weights = gl.gl_nodes_and_weights(nq)
 ##########################
 # GENERATE MESH DOMAIN:
 ##########################
-
-mesh = mesh_kit.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = meshers.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:
@@ -63,9 +76,8 @@ print " "
 # BOUNDARY CONDITIONS:
 ##########################
 time1 = time.time()
-updated_facets = mesh_kit.facet_orientation(mesh.facets, mesh.elements, points)
 # Neumann boundary:
-for i, facet in enumerate(updated_facets):
+for i, facet in enumerate(mesh.facets):
     if (mesh.facet_markers[i] == 1):
         p1 = points[facet[0],:]
         p2 = points[facet[1],:]
@@ -76,12 +88,12 @@ for i, facet in enumerate(updated_facets):
         b[facet[1]] += gauss.gaussian_line(p1, p2, nodes, weights,
                 lambda x: h(x) * np.inner(coeffs[:,1],x) )
 
-for i, facet in enumerate(updated_facets):
+for i, facet in enumerate(mesh.facets):
     if (mesh.facet_markers[i] == 2):
         A[facet[0],:] = 0
         A[facet[1],:] = 0
         A[facet[0], facet[0]] = 1
-        A[facet[1],facet[1]] = 1
+        A[facet[1], facet[1]] = 1
         b[facet[0]] = g(points[facet[0],:])
         b[facet[1]] = g(points[facet[1],:])
 
@@ -101,7 +113,3 @@ ax.plot_trisurf(points[:,0], points[:,1], u,
                 cmap=cm.jet, linewidth=0.2)
 
 plt.show(1)
-
-#print mesh.facets
-#for i, facet in enumerate(mesh.facets):
-#    print facet, mesh.facet_markers[i]
