@@ -23,13 +23,13 @@ from integrators import gl_quad_functions as gl
 ##########################
 
 # Time-step
-dt = 1.0E-4
+dt = 1.0E-1
 
 # Start time
 t_start = 0.0
 
 # stop time
-t_stop = 1.0
+t_stop = 20
 
 # Directioness of Euler
 theta = 0.5
@@ -115,12 +115,14 @@ for i, facet in enumerate(updated_facets):
 #########################################################
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-surf = None
+surf = ax.plot_trisurf(points[:,0], points[:,1], c,
+                       triangles = mesh.elements,
+                       cmap=cm.jet, linewidth=0.2)
 t = t_start
 while (t<t_stop):
     oldcol = surf
 
-    c = la.solve(W1, np.dot(W2, c) + b)
+    c = la.solve(W1, np.dot(W2, c) + dt*b)
     surf = ax.plot_trisurf(points[:,0], points[:,1], c,
                             triangles = mesh.elements,
                             cmap=cm.jet, linewidth=0.2)
@@ -133,29 +135,5 @@ while (t<t_stop):
     t += dt
 
 
-
-def plot_init():
-    pass
-
-def plot_animate(ax):
-    pass
-
-def step(t, dt, c, W1, W2):
-    c_0 = np.copy(c)
-    c = la.solve(W1, np.dot(W2, c_0) + b)
-    return c
-
-
-
-
-
-
-
-
-
-
 plt.show(1)
 
-#print mesh.facets
-#for i, facet in enumerate(mesh.facets):
-#    print facet, mesh.facet_markers[i]
