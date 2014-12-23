@@ -9,7 +9,7 @@ def local_mass_1d():
     pass
 
 def local_mass_2d(local_points):
-    """Takes in a meshpy.MeshInfo object and returns a corresponding mass 
+    """Takes in a meshpy.MeshInfo object and returns a corresponding mass
     matrix.
 
     INPUT
@@ -29,7 +29,7 @@ def local_mass_2d(local_points):
 
     for alpha in xrange(3):
         for beta in xrange(3):
-            integrand = lambda x: np.inner( coefficients[:,alpha], np.append([1],x))*
+            integrand = lambda x: np.inner( coefficients[:,alpha], np.append([1],x))*\
                                   np.inner( coefficients[:,beta], np.append([1],x))
             M_loc[alpha, beta] += gauss.gaussian_quad_2d(local_points[0], local_points[1],
                                                         local_points[2], 4, integrand)

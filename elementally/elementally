@@ -22,6 +22,9 @@ def main(args=None):
     elif sys.argv[1] is not None and sys.argv[1] == 'poisson_2d':
         import solvers.poisson_2d
         return 0
+    elif sys.argv[1] is not None and sys.argv[1] == 'heat_equation_2d':
+        import solvers.heat_equation_2d
+        return 0
     else:
         print "Choose solver by"
         print "    python elementally poisson_1d|poisson_2d"
