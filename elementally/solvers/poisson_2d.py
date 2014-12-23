@@ -12,10 +12,12 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import time
 
-from assemblers import stiffness
-from assemblers import loading
+# from assemblers import stiffness
+# from assemblers import loading
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
+
+import assemblers
 
 ###########################
 # SET UP PARAMETERS:
@@ -47,23 +49,15 @@ mesh = mesh_kit.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
 # ASSEMBLY:
 ##########################
 
-points = np.array(mesh.points)
-A = np.zeros((len(mesh.points), len(mesh.points)))
-b = np.zeros(len(mesh.points))
-
-time1 = time.time()
-for element in mesh.elements:
-    A[np.ix_(element, element)] += stiffness.local_stiffness_2d(points[element])
-    b[element] += loading.local_loading_2d(points[element], f)
-
-time2 = time.time()
+assembly = assemblers.Poisson_2d(mesh, f)
+A = assembly.A
+b = assembly.b
+points = assembly.points
 print "Mesh data:"
 print " Number of points: ", len(points)
 print " Number of elements: ", len(mesh.elements)
 print "-----------------------"
 print " "
-print "Assembly time: ", time2-time1
-
 
 ##########################
 # BOUNDARY CONDITIONS:
