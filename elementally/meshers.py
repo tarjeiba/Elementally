@@ -70,8 +70,6 @@ class ElementallyMeshInfo(triangle.MeshInfo):
                 updated_facets.append( [facet[1], facet[0] ] )
         self.set_facets(updated_facets, self.facet_markers)
 
-    def set_boundaries(self, boundary_dict):
-        for i, facet in enumerate(self.facets):
 
 
 
