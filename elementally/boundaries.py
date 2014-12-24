@@ -1,4 +1,6 @@
 import numpy as np
+import scipy.linalg as la
+from integrators import gaussian as gauss
 
 
 
@@ -12,7 +14,7 @@ import numpy as np
 ###############################################
 
 def impose_dirichlet(boundary_dict, mesh, 
-                     loading_vec, *matrices, time=None):
+                     loading_vec, *matrices,**kwargs):
     """Function for imposing the boundary Dirichlet boundary,
     conditions.
     INPUT:
@@ -29,6 +31,11 @@ def impose_dirichlet(boundary_dict, mesh,
     OUTPUT:
         Updated matrices and loading vector.
     """
+    if 'time' in kwargs.keys():
+        t = kwargs['time']
+    else:
+        t = None
+
     res_matrices = []
     for matrix in matrices:
         res_matrices.append(matrix)
@@ -43,9 +50,9 @@ def impose_dirichlet(boundary_dict, mesh,
             # Fix element in loading vector:
             f = boundary_dict['dir'][mesh.facet_markers[i]]
 
-            if time is not None:
-                loading_vec[facet[0]] = f(point1,time)
-                loading_vec[facet[1]] = f(point2,time)
+            if t is not None:
+                loading_vec[facet[0]] = f(point1,t)
+                loading_vec[facet[1]] = f(point2,t)
             else:
                 loading_vec[facet[0]] = f(point1)
                 loading_vec[facet[1]] = f(point2)
@@ -62,12 +69,56 @@ def impose_dirichlet(boundary_dict, mesh,
                     matrix[facet[1],facet[1]] = 1.
 
 
-    return loading_vec, res_matrices
+    if (len(res_matrices)==1):
+        return res_matrices[0], loading_vec
+    else:
+        return res_matrices, loading_vec
 
 
+################################################################
+##
+##                  NEUMANN BOUNDARY
+##
+################################################################
 
+def impose_neumann(boundary_dict,mesh, loading_vec,
+                   nodes, weights, time=None):
+    """Function for imposing Neumann boundary conditions.
+    INPUT:
+        boundary_dict: Dictionary with boundary data.
+        mesh: ElementallyMeshInfo.
+        loading_vec: Loading vector.
+        nodes, weights: Used for numerical quadrature.
+        time(defalt=None): If time dependent problem.
+    OUTPUT:
+        Updated loading vector.
+    """
+    # We start by iterating over facets:
+    for i, facet in enumerate(mesh.facets):
+        # Check if the facet is Neumann:
+        if mesh.facet_markers[i] in boundary_dict['neu'].keys():
+            #Get points:
+            p1 = np.array(mesh.points[facet[0]])
+            p2 = np.array(mesh.points[facet[1]])
+            coeffs = la.inv( np.vstack( (p1,p2) ) )
+            # Create proto-integrand:
+            if time is not None:
+                f = lambda x: \
+                    boundary_dict['neu'][mesh.facet_markers[i]](x,time)
+            else:
+                f = lambda x: \
+                    boundary_dict['neu'][mesh.facet_markers[i]](x)
 
+            # Add the contributions:
+            loading_vec[facet[0]] += gauss.gaussian_line(p1,p2,
+                nodes, weights,
+                lambda x: f(x) * np.inner(coeffs[:,0],x) )
 
+            loading_vec[facet[1]] += gauss.gaussian_line(p1,p2,
+                nodes, weights,
+                lambda x: f(x) * np.inner(coeffs[:,1],x) )
+
+    return loading_vec
 
 
 
