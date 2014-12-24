@@ -13,19 +13,6 @@ import numpy.linalg as la
 
 class ElementallyMeshInfo(triangle.MeshInfo):
 
-    def __init__(self):
-        self.boundaries = {}
-
-    def set_boundaries(self, boundary_dict):
-        """Function for setting boundary data.
-        INPUT:
-            boundary_dict: Should be of the form
-            {'dir': {boundary_marker: boundary_function,...}
-            'neu': {boundary_marker: boundary_function,...}
-            }
-        """
-        self.boundaries = boundary_dict
-
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
