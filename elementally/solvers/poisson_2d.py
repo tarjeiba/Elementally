@@ -16,18 +16,11 @@ from integrators import gl_quad_functions as gl
 
 import assemblers
 import meshers
+import boundaries
 
 ##########################
 # BOUNDARY CONDITIONS
 ##########################
-
-boundaries = {
-    'dir': [(1, g1),
-            (2, g2)],
-    'neu': [(3, h1)]
-    }
-
-
 ##########################
 # SET UP PARAMETERS:
 ##########################
@@ -48,6 +41,11 @@ def g2(x, t):
 # Neumann function:
 def h(x):
     return 0.
+
+# Boundary dictionary:
+boundary_dict = {'dir': {2: g}, 'neu': {1: h}}
+
+
 
 # Order of Gaussian quadrature:
 nq = 4
@@ -76,26 +74,12 @@ print " "
 # BOUNDARY CONDITIONS:
 ##########################
 time1 = time.time()
-# Neumann boundary:
-for i, facet in enumerate(mesh.facets):
-    if (mesh.facet_markers[i] == 1):
-        p1 = points[facet[0],:]
-        p2 = points[facet[1],:]
-        coeffs = la.inv( np.vstack( (p1,p2) ) )
-        #Adding the contributions:
-        b[facet[0]] += gauss.gaussian_line(p1, p2, nodes, weights,
-                lambda x: h(x) * np.inner(coeffs[:,0],x) )
-        b[facet[1]] += gauss.gaussian_line(p1, p2, nodes, weights,
-                lambda x: h(x) * np.inner(coeffs[:,1],x) )
+# Imposing Neumann:
+b = boundaries.impose_neumann(boundary_dict, mesh, b,
+            nodes, weights)
 
-for i, facet in enumerate(mesh.facets):
-    if (mesh.facet_markers[i] == 2):
-        A[facet[0],:] = 0
-        A[facet[1],:] = 0
-        A[facet[0], facet[0]] = 1
-        A[facet[1], facet[1]] = 1
-        b[facet[0]] = g(points[facet[0],:])
-        b[facet[1]] = g(points[facet[1],:])
+# Imposing Dirichlet:
+A,b = boundaries.impose_dirichlet(boundary_dict, mesh, b, A)
 
 time2 = time.time()
 print "Imposing BC: ", time2-time1
