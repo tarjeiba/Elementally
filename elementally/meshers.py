@@ -185,7 +185,7 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     points.extend( circle_segment(angle_end, angle_start, center, radius_inner, num_points_inner) )
     facet_markers.append(2)
     facet_markers.extend( [1] * (num_points_inner - 1) )
-    facet_markers.append(2)
+    facet_markers.append(3)
     num_points = len(points)
     # Create list of point connectivity:
     facets = connect_points(0,num_points-1)
