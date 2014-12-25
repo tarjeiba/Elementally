@@ -6,18 +6,17 @@
 
 import numpy as np
 import numpy.linalg as la
-from meshers import mesh_kit_2d as mesh_kit
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
-from assemblers import stiffness
-from assemblers import loading
-from assemblers import mass
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
 
+import assemblers
+import meshers
+import boundaries
 ###########################
 # SET UP PARAMETERS:
 ##########################
@@ -33,18 +32,24 @@ t_stop = 20
 
 # Directioness of Euler
 theta = 0.5
-
+##############################
 # Poisson function:
 def f(x):
-    return 1.
-
-# Dirichlet function:
-def g(x):
     return 0.
+
+# Dirichlet functions:
+def g1(x,t):
+    return 0.
+
+def g2(x, t):
+    return 1. * np.sin(8 * np.pi * t / t_stop)
 
 # Neumann function:
-def h(x):
+def h(x,t):
     return 0.
+
+boundary_dict = {'dir': {2: g1, 3: g2}, 'neu': {1: h}}
+
 
 # Order of Gaussian quadrature:
 nq = 4
@@ -54,21 +59,23 @@ nodes, weights = gl.gl_nodes_and_weights(nq)
 # GENERATE MESH DOMAIN:
 ##########################
 
-mesh = mesh_kit.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
+mesh = meshers.quarter_annulus_2d( 0.01, 0.0, 2.*np.pi/2., (0.,0.), 1.0, 2.0)
 
 ##########################
 # ASSEMBLY:
 ##########################
 
-points = np.array(mesh.points)
-M = np.zeros((len(mesh.points), len(mesh.points)))
-A = np.zeros((len(mesh.points), len(mesh.points)))
-b = np.zeros(len(mesh.points))
+assembly = assemblers.Heat_Equation_2d(mesh,f)
+A = assembly.A
+M = assembly.M
+# Constituents of the loading vector
+loading_base = assembly.b
+loading_bc = np.zeros(len(mesh.points))
+loading_bc_old = np.copy(loading_bc)
+loading_dir = np.copy(loading_bc)
 
-for element in mesh.elements:
-    M[np.ix_(element, element)] += stiffness.local_stiffness_2d(points[element])
-    A[np.ix_(element, element)] += stiffness.local_stiffness_2d(points[element])
-    b[element] += loading.local_loading_2d(points[element], f)
+points = assembly.points
+
 
 W1 = M + dt * (1 - theta) * A
 W2 = M - dt * theta * A
@@ -79,60 +86,68 @@ W2 = M - dt * theta * A
 
 c = np.zeros(len(mesh.points))
 
-
 ##########################
 # BOUNDARY CONDITIONS:
 ##########################
 
-updated_facets = mesh_kit.facet_orientation(mesh.facets, mesh.elements, points)
 # Neumann boundary:
-for i, facet in enumerate(updated_facets):
-    if (mesh.facet_markers[i] == 1):
-        p1 = points[facet[0],:]
-        p2 = points[facet[1],:]
-        coeffs = la.inv(np.vstack((p1,p2)))
-        #Adding the contributions:
-        b[facet[0]] += gauss.gaussian_line(p1, p2, nodes, weights,
-                lambda x: h(x) * np.inner(coeffs[:,0],x))
-        b[facet[1]] += gauss.gaussian_line(p1, p2, nodes, weights,
-                lambda x: h(x) * np.inner(coeffs[:,1],x))
+loading_bc = boundaries.impose_neumann(boundary_dict, mesh, loading_bc,
+                nodes, weights, time=t_start)
 
 
 # Dirichlet boundary:
-for i, facet in enumerate(updated_facets):
-    if (mesh.facet_markers[i] == 2):
-        W1[facet[0],:] = 0
-        W1[facet[1],:] = 0
-        W2[facet[0],:] = 0
-        W2[facet[1],:] = 0
-        W1[facet[0], facet[0]] = 1
-        W1[facet[1],facet[1]] = 1
-        b[facet[0]] = g(points[facet[0],:])
-        b[facet[1]] = g(points[facet[1],:])
+[W1, W2], loading_bc = boundaries.impose_dirichlet(boundary_dict, mesh,
+                loading_bc, W1, W2, time=t_start)
+
+# Also need to zero out some rows of the loading_base vector.
+loading_base = boundaries.impose_dirichlet(boundary_dict, mesh,
+                loading_base, time=t_start)
+
 
 #########################################################
 #       SOLVING AND ANIMATING:
 #########################################################
+
 fig = plt.figure()
+# Set colormap:
+colormap = cm.ScalarMappable(cmap=cm.get_cmap('bone'))
+colormap.set_clim(-1., 1.)
+
+
 ax = fig.gca(projection='3d')
 surf = ax.plot_trisurf(points[:,0], points[:,1], c,
                        triangles = mesh.elements,
-                       cmap=cm.jet, linewidth=0.2)
+                       cmap=colormap, linewidth=0.2)
 t = t_start
 while (t<t_stop):
+    # Update time:
+    t += dt
+    # Update old surface:
     oldcol = surf
+    # Update old BC loading:
+    loading_bc_old = loading_bc
 
-    c = la.solve(W1, np.dot(W2, c) + dt*b)
+    # Construct new loading_bc:
+    loading_bc = np.zeros(len(mesh.points))
+    loading_bc = boundaries.impose_neumann(boundary_dict, mesh,
+                    loading_bc, nodes, weights, time=t)
+
+
+    loading_dir = boundaries.impose_dirichlet(boundary_dict, mesh,
+                    loading_dir, time=t)
+    # create time-loading (just a temp):
+    temp = loading_base + (1-theta)*loading_bc + theta*loading_bc_old
+
+    c = la.solve(W1, np.dot(W2, c) + dt*temp + loading_dir)
     surf = ax.plot_trisurf(points[:,0], points[:,1], c,
                             triangles = mesh.elements,
-                            cmap=cm.jet, linewidth=0.2)
+                            cmap=colormap, linewidth=0.2)
 
 
     if oldcol is not None:
         ax.collections.remove(oldcol)
 
-    plt.pause(0.01)
-    t += dt
+    plt.pause(0.001)
 
 
 plt.show(1)
