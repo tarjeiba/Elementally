@@ -36,34 +36,32 @@ class Assembly_2d(Assembly):
         super(Assembly_2d, self).__init__()
         self.points = np.array(mesh.points)
 
-    def local_mass(self, local_points):
+    def local_mass(self, local_points, local_coeffs):
         """Takes in a meshpy.MeshInfo object and returns a corresponding mass
         matrix.
 
         INPUT
         local_points (3,2) np.array [[x1,y1], [x2,y2], [x3,y3]]
+        local_coeffs: Coefficients for local basis functions.
         OUTPUT
         M_loc (3,3) np.array
         """
 
         M_loc = np.zeros((len(local_points), len(local_points)))
 
-        coordinates = np.ones((3, 3))
-        coordinates[:, 1:] = local_points
 
         # Inverting the matrix of coordinates results in the coefficients for the three test
         # functions that are non-zero on this element
-        coefficients = la.inv(coordinates)
 
         for alpha in xrange(3):
             for beta in xrange(3):
-                integrand = lambda x: np.inner( coefficients[:,alpha], np.append([1],x))*\
-                                      np.inner( coefficients[:,beta], np.append([1],x))
+                integrand = lambda x: np.inner( local_coeffs[:,alpha], np.append([1],x))*\
+                                      np.inner( local_coeffs[:,beta], np.append([1],x))
                 M_loc[alpha, beta] += gauss.gaussian_quad_2d(local_points[0], local_points[1],
                                                             local_points[2], 4, integrand)
         return M_loc
 
-    def local_stiffness(self, local_points):
+    def local_stiffness(self, local_points, local_coeffs):
         """Takes in a meshpy.MeshInfo object and returns a corresponding stiffness
         matrix.
 
@@ -75,22 +73,19 @@ class Assembly_2d(Assembly):
 
         A_loc = np.zeros((len(local_points), len(local_points)))
 
-        coordinates = np.ones((3, 3))
-        coordinates[:, 1:] = local_points
 
         # Inverting the matrix of coordinates results in the coefficients for the three test
         # functions that are non-zero on this element
-        coefficients = la.inv(coordinates)
         area = gauss.gaussian_quad_2d(local_points[0], local_points[1],
                                       local_points[2], 1, lambda x: 1.)
 
         for alpha in xrange(3):
             for beta in xrange(3):
-                A_loc[alpha, beta] += np.inner(coefficients[1:, alpha],
-                                               coefficients[1:, beta]) * area
+                A_loc[alpha, beta] += np.inner(local_coeffs[1:, alpha],
+                                               local_coeffs[1:, beta]) * area
         return A_loc
 
-    def local_loading(self, local_points, load_func):
+    def local_loading(self, local_points, load_func, local_coeffs):
         """Takes in a meshpy.MeshInfo object and returns a corresponding loading
         vector.
 
@@ -103,15 +98,12 @@ class Assembly_2d(Assembly):
 
         b_loc = np.zeros(len(local_points))
 
-        coordinates = np.ones((3, 3))
-        coordinates[:, 1:] = local_points
 
         # Inverting the matrix of coordinates results in the coefficients for
         # the three test functions that are non-zero on this element
-        coefficients = la.inv(coordinates)
 
         for alpha in xrange(3):
-            integrand = lambda x: load_func(x) * np.inner(coefficients[:, alpha],
+            integrand = lambda x: load_func(x) * np.inner(local_coeffs[:, alpha],
                                                   np.append([1], x))
             b_loc[alpha] += gauss.gaussian_quad_2d(local_points[0], local_points[1],
                                                    local_points[2], 4, integrand)
@@ -144,8 +136,12 @@ class Poisson_2d(Assembly_2d):
 
     def assembler(self, mesh):
         for element in mesh.elements:
-            self.A[np.ix_(element, element)] += self.local_stiffness(self.points[element])
-            self.b[element] += self.local_loading(self.points[element], self.load_func)
+            local_points = np.array(self.points[element])
+            coords = np.ones( (3,3) )
+            coords[:,1:] = local_points
+            coeffs = la.inv(coords)
+            self.A[np.ix_(element, element)] += self.local_stiffness(local_points, coeffs)
+            self.b[element] += self.local_loading(local_points, self.load_func, coeffs)
 
 class Heat_Equation_2d(Assembly_2d):
 
@@ -159,8 +155,13 @@ class Heat_Equation_2d(Assembly_2d):
 
     def assembler(self, mesh):
         for element in mesh.elements:
-            self.A[np.ix_(element, element)] += self.local_stiffness(self.points[element])
-            self.M[np.ix_(element, element)] += self.local_mass(self.points[element])
-            self.b[element] += self.local_loading(self.points[element], self.load_func)
+            local_points = np.array(self.points[element])
+            coords = np.ones( (3,3) )
+            coords[:,1:] = local_points
+            coeffs = la.inv(coords)
+            
+            self.A[np.ix_(element, element)] += self.local_stiffness(local_points, coeffs)
+            self.M[np.ix_(element, element)] += self.local_mass(local_points, coeffs)
+            self.b[element] += self.local_loading(local_points, self.load_func, coeffs)
 
 
