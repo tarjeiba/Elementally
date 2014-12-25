@@ -69,7 +69,9 @@ def impose_dirichlet(boundary_dict, mesh,
                     matrix[facet[1],facet[1]] = 1.
 
 
-    if (len(res_matrices)==1):
+    if (len(res_matrices)<1):
+        return loading_vec
+    elif (len(res_matrices)==1):
         return res_matrices[0], loading_vec
     else:
         return res_matrices, loading_vec
