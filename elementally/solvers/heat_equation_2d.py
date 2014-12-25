@@ -42,7 +42,7 @@ def g1(x,t):
     return 0.
 
 def g2(x, t):
-    return 1. * np.sin(8 * np.pi * t / t_stop)
+    return 1. * np.sin(8. * np.pi * t / t_stop)
 
 # Neumann function:
 def h(x,t):
@@ -96,12 +96,9 @@ loading_bc = boundaries.impose_neumann(boundary_dict, mesh, loading_bc,
 
 
 # Dirichlet boundary:
-[W1, W2], loading_bc = boundaries.impose_dirichlet(boundary_dict, mesh,
-                loading_bc, W1, W2, time=t_start)
+[W1, W2, loading_base], loading_bc = boundaries.impose_dirichlet(boundary_dict, mesh,
+                loading_bc, W1, W2, loading_base, time=t_start)
 
-# Also need to zero out some rows of the loading_base vector.
-loading_base = boundaries.impose_dirichlet(boundary_dict, mesh,
-                loading_base, time=t_start)
 
 
 #########################################################
@@ -142,7 +139,6 @@ while (t<t_stop):
     loading_bc = boundaries.impose_neumann(boundary_dict, mesh,
                     loading_bc, nodes, weights, time=t)
 
-
     loading_dir = boundaries.impose_dirichlet(boundary_dict, mesh,
                     loading_dir, time=t)
     # create time-loading (just a temp):
@@ -158,7 +154,7 @@ while (t<t_stop):
     if oldcol is not None:
         ax.collections.remove(oldcol)
 
-    plt.pause(0.0001)
+    plt.pause(0.0000000001)
 
 plt.show(1)
 
