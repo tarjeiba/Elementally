@@ -98,10 +98,6 @@ class Assembly_2d(Assembly):
 
         b_loc = np.zeros(len(local_points))
 
-
-        # Inverting the matrix of coordinates results in the coefficients for
-        # the three test functions that are non-zero on this element
-
         for alpha in xrange(3):
             integrand = lambda x: load_func(x) * np.inner(local_coeffs[:, alpha],
                                                   np.append([1], x))
@@ -155,6 +151,8 @@ class Heat_Equation_2d(Assembly_2d):
 
     def assembler(self, mesh):
         for element in mesh.elements:
+            # Coefficients for the basis functions are found by
+            # inverting the coordinate matrix.
             local_points = np.array(self.points[element])
             coords = np.ones( (3,3) )
             coords[:,1:] = local_points
