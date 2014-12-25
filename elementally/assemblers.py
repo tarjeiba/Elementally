@@ -146,3 +146,21 @@ class Poisson_2d(Assembly_2d):
         for element in mesh.elements:
             self.A[np.ix_(element, element)] += self.local_stiffness(self.points[element])
             self.b[element] += self.local_loading(self.points[element], self.load_func)
+
+class Heat_Equation_2d(Assembly_2d):
+
+    def __init__(self,mesh, load_func):
+        super(Heat_Equation_2d, self).__init__(mesh)
+        self.A = np.zeros((len(self.points), len(self.points)))
+        self.M = np.zeros((len(self.points), len(self.points)))
+        self.b = np.zeros(len(self.points))
+        self.load_func = load_func
+        self.assembler(mesh)
+
+    def assembler(self, mesh):
+        for element in mesh.elements:
+            self.A[np.ix_(element, element)] += self.local_stiffness(self.points[element])
+            self.M[np.ix_(element, element)] += self.local_mass(self.points[element])
+            self.b[element] += self.local_loading(self.points[element], self.load_func)
+
+
