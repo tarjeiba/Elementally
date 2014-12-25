@@ -36,4 +36,4 @@ pep-0008 "Style Guide for Python Code")
 ## Theory
 
 As the theory behind this is heavy on mathematical notation, we have separated
-it into its own iPython Notebooks. The notebooks can be viewed using [nbviewer](http://nbviewer.ipython.org/github/tarjeiba/Elementally/tree/master/notebooks/).
+it into its own iPython Notebooks. The notebooks can be viewed using [nbviewer](http://nbviewer.ipython.org/github/tarjeiba/Elementally/tree/master/docs/).
