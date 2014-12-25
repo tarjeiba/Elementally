@@ -102,7 +102,13 @@ def impose_neumann(boundary_dict,mesh, loading_vec,
             #Get points:
             p1 = np.array(mesh.points[facet[0]])
             p2 = np.array(mesh.points[facet[1]])
-            coeffs = la.inv( np.vstack( (p1,p2) ) )
+            dirvec = p2-p1
+            perpvec = np.array( [dirvec[1], -dirvec[0]])
+            p3 = p1 + perpvec
+            coords = np.ones( (3,3) )
+            coords[:,1:] = np.vstack( (p1, p2, p3) )
+            
+            coeffs = la.inv(coords)
             # Create proto-integrand:
             if time is not None:
                 f = lambda x: \
@@ -114,11 +120,11 @@ def impose_neumann(boundary_dict,mesh, loading_vec,
             # Add the contributions:
             loading_vec[facet[0]] += gauss.gaussian_line(p1,p2,
                 nodes, weights,
-                lambda x: f(x) * np.inner(coeffs[:,0],x) )
+                lambda x: f(x) * np.inner(coeffs[:,0],np.append([1],x)) )
 
             loading_vec[facet[1]] += gauss.gaussian_line(p1,p2,
                 nodes, weights,
-                lambda x: f(x) * np.inner(coeffs[:,1],x) )
+                lambda x: f(x) * np.inner(coeffs[:,1],np.append([1],x)) )
 
     return loading_vec
 
