@@ -48,7 +48,7 @@ def g2(x, t):
 def h(x,t):
     return 0.
 
-boundary_dict = {'dir': {2: g1, 3: g2}, 'neu': {1: h}}
+boundary_dict = {'dir': {3: g2}, 'neu': {1: h, 2: g1}}
 
 
 # Order of Gaussian quadrature:
@@ -110,14 +110,24 @@ loading_base = boundaries.impose_dirichlet(boundary_dict, mesh,
 
 fig = plt.figure()
 # Set colormap:
-colormap = cm.ScalarMappable(cmap=cm.get_cmap('bone'))
-colormap.set_clim(-1., 1.)
+colormap = cm.get_cmap('bone')
 
 
 ax = fig.gca(projection='3d')
+
+ax.set_xlim3d(left=-2., right=2.)
+ax.set_ylim3d(bottom=0., top=2.)
+ax.set_zlim3d(bottom=-1., top=1.)
+
+ax.set_xlabel('$x$')
+ax.set_ylabel('$y$')
+ax.set_zlabel('$c$')
+ax.set_title('Numerical solution')
+
 surf = ax.plot_trisurf(points[:,0], points[:,1], c,
                        triangles = mesh.elements,
-                       cmap=colormap, linewidth=0.2)
+                       cmap=colormap, vmin=-1.,
+                       vmax= 1., linewidth=0.2)
 t = t_start
 while (t<t_stop):
     # Update time:
@@ -141,14 +151,14 @@ while (t<t_stop):
     c = la.solve(W1, np.dot(W2, c) + dt*temp + loading_dir)
     surf = ax.plot_trisurf(points[:,0], points[:,1], c,
                             triangles = mesh.elements,
-                            cmap=colormap, linewidth=0.2)
+                            cmap=colormap, vmin=-1.,
+                            vmax=1., linewidth=0.2)
 
 
     if oldcol is not None:
         ax.collections.remove(oldcol)
 
-    plt.pause(0.001)
-
+    plt.pause(0.0001)
 
 plt.show(1)
 
