@@ -33,17 +33,12 @@ def f(x):
 def g(x):
     return 0.
 
-def g1(x):
-    return 0.
-
-def g2(x, t):
-    return 1. * np.sin(4 * np.pi * t / t_stop)
 # Neumann function:
 def h(x):
     return 0.
 
 # Boundary dictionary:
-boundary_dict = {'dir': {2: g}, 'neu': {1: h}}
+boundary_dict = {'dir': {2: g, 3: g}, 'neu': {1: h}}
 
 
 
