@@ -13,6 +13,8 @@ import numpy.linalg as la
 
 class ElementallyMeshInfo(triangle.MeshInfo):
 
+    neighbors = []
+    normals = []
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
@@ -71,13 +73,42 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         self.set_facets(updated_facets, self.facet_markers)
 
 
+    def set_neighbors_from_voronoi(self, vorout):
+        """
+        Function for using a Voronoi diagram data structure to get
+        neighbors and face normals of the mesh.
+        INPUT:
+          mesh: Output mesh from a call to build(ElementallyMeshInfo)
+          vorout: Output voronoi diagram structure after call to Triangle.triangulate.
+        OUTPUT:
+          void: mesh is manipulated
+        """
+        if not (self.faces):
+            print "mesh.faces is not initialized."
+            return None
+
+        neighbors = []
+        normals = []
+        for i, face in enumerate(self.faces):
+            # Append neighboring triangles of this edge:
+            neighbors.append((vorout.faces[i][0], vorout.faces[i][1]))      
+            # Now to the normal of the edge to be pointing out of the triangle in
+            # neighbors[i][0]:
+            dirx = self.points[face[1]][0] - self.points[face[0]][0]
+            diry = self.points[face[1]][1] - self.points[face[0]][1]
+            mag = np.sqrt(dirx**2 + diry**2)
+
+            normals.append( (diry/mag, -dirx/mag) ) 
+
+        self.neighbors = neighbors
+        self.normals = normals
 
 
 def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         volume_constraints=False, max_volume=None, allow_boundary_steiner=True,
         allow_volume_steiner=True, quality_meshing=True,
         generate_edges=None, generate_faces=False, min_angle=None,
-        mesh_order=None):
+        mesh_order=None, generate_neighbors=False):
     """Triangulate the domain given in `mesh_info'.
 
     Taken with minute changes from triangle.build() written by Andreas Kloeckner.
@@ -117,6 +148,10 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
 
     if generate_faces:
         opts += "e"
+        # THIS IS NEW: To get neighbors and normals
+        if generate_neighbors:
+            opts += "v" 
+      
 
     if not allow_volume_steiner:
         opts += "YY"
@@ -139,8 +174,16 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
 
     try:
         mesh = ElementallyMeshInfo()
+        vorout = ElementallyMeshInfo()  # To be used to get neighbors
+        # Interface for triangulate in backend Triangle is: 
+        #   triangulate(options, input_info, output_mesh, voronoi_diagram)
         triangle.internals.triangulate(opts, mesh_info, mesh,
-                                       ElementallyMeshInfo(), refinement_func)
+                                       vorout, refinement_func)
+
+        # If generate_neighbors is true, we alse want neighbors and normals:
+        if generate_neighbors and generate_faces:
+            mesh.set_neighbors_from_voronoi(vorout)
+
     finally:
         # restore previous locale if we've changed it
         if have_locale:
@@ -200,12 +243,15 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     mesh.order_facets()
     return mesh
 
-def unit_square_2d(nx, ny):
+def unit_square_2d(nx, ny, generate_facets=False,
+                  generate_neighbors=False):
   """
   Function creating a 2D mesh of the unit square [0,1]^2.
   INPUT:
     nx, ny: ints, specifying number of subdivisions in the
       x- and y direction, respectively.
+    generate_facets: boolean specying whether all edges, not only boundary edges, should be
+      generated in the output mesh.
   OUTPUT:
     mesh: Output mesh  
   """
@@ -231,7 +277,9 @@ def unit_square_2d(nx, ny):
   info = ElementallyMeshInfo()
   info.set_points(points)
   info.set_facets(facets)
-  mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)))
+  mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)),
+        generate_faces=generate_facets,
+        generate_neighbors=generate_neighbors)
 
   return mesh
 
