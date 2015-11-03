@@ -17,6 +17,11 @@ def main(args=None):
   if sys.argv[1] is not None and sys.argv[1] == 'demo_unit_square':
     import tests.demo_unit_square
     return 0
+
+  if sys.argv[1] is not None and sys.argv[1] == 'demo_raviart_thomas':
+    import tests.demo_Raviart_thomas
+    return 0
+
   else:
     print "Choose a demo to run."
     return 1

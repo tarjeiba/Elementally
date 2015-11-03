@@ -2,6 +2,7 @@ import numpy as np
 import numpy.linalg as la
 
 import meshers
+from basis_functions import *
 #################################################
 ##
 ##            BASE PROBLEM CLASS:
@@ -34,7 +35,9 @@ class ContinuousLinear(FunctionSpaceBase2D):
     # Constructor is inherited from ProblemBase2D.
      
     # dofmap is same as element connectivity in this case: 
-    dofmap = np.array(self.mesh.elements)
+    def __init__(self, mesh):
+        super(ContinuousLinear, self).__init__(mesh)
+        dofmap = np.array(self.mesh.elements)
   
     # dof_dim array: One per vertex, rest is zero.
     dof_dim = np.array( (1, 0, 0) )
@@ -60,45 +63,3 @@ class RaviartThomas(FunctionSpaceBase2D):
 
 
 
-##################################################
-##
-##    BASIS FUNCTIONS ON REFERENCE TRIANGLE:
-##
-##################################################
-# For continuous linear elements:
-def cg_phi0(x):
-    return 1.-x[0] - x[1]
-
-def cg_phi1(x):
-    return x[0]
-
-def cg_phi2(x):
-    return x[1]
-
-def cg_grad_phi0(x):
-    return np.array((-1., -1.))
-
-def cg_grad_phi1(x):
-    return np.array((1., 0.))
-
-def cg_grad_phi2(x):
-    return np.array((0., 1.))
-
-# For Raviart-Thomas:
-def rt_phi0(x):
-  return np.sqrt(2)*np.array( (x[0], y[0]) )
-
-def rt_phi1(x):
-  return np.array( (x[0]-1., x[1]) )
-
-def rt_phi2(x):
-  return np.array( (x[0], x[1]-1.) )
-
-def rt_div_phi0(x):
-  return 2.*np.sqrt(2)
-
-def rt_div_phi1(x):
-  return 2.
-
-def rt_div_phi2(x):
-  return 2.
