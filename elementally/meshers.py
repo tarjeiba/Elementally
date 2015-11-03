@@ -200,6 +200,15 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     mesh.order_facets()
     return mesh
 
+def unit_square_2d(nx, ny):
+  """
+  Function creating a 2D mesh of the unit square [0,1]^2.
+  INPUT:
+    nx, ny: ints, specifying number of subdivisions in the
+      x- and y direction, respectively.
+  OUTPUT:
+    mesh: Output mesh  
+  """
 
 #---------------------------------------------|
 #   Functions useful for creating mesh.       |
