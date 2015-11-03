@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import meshers
-import problem_class
+import function_spaces
 
 #######################################
 
@@ -18,4 +18,23 @@ mesh = meshers.unit_square_2d(2,2,\
         generate_neighbors=True)
 
 # Create Raviart-Thomas function space:
-RTh = RaviartThomas(mesh)
+RTh = function_spaces.RaviartThomas(mesh)
+
+# Create meshgrid to plot on:
+N = 10
+x = np.linspace(0., 1., N)
+
+X, Y = np.meshgrid(x,x, indexing="ij")
+
+# Plot basis functions:
+k = 2
+U = np.zeros ( (N, N) )
+V = np.zeros ( (N, N) )
+for i in range(N):
+  for j in range(N):
+    x = np.array( (X[i,j], Y[i,j]) )
+    U[i,j], V[i,j] = RTh.funcs[k](x)
+
+plt.figure()
+plt.quiver(X,Y,U,V)
+plt.show()

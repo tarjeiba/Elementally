@@ -60,6 +60,7 @@ class RaviartThomas(FunctionSpaceBase2D):
     dof_dim = np.array( (0, 1, 0) )
     dof_per_el = 3
 
-
-
-
+    funcs = [rt_phi0, rt_phi1, rt_phi2]
+    funcders = [rt_div_phi0,\
+                rt_div_phi1,\
+                rt_div_phi2]

@@ -26,7 +26,7 @@ def cg_grad_phi2(x):
 
 # For Raviart-Thomas:
 def rt_phi0(x):
-  return np.sqrt(2)*np.array( (x[0], y[0]) )
+  return np.sqrt(2)*np.array( (x[0], x[1]) )
 
 def rt_phi1(x):
   return np.array( (x[0]-1., x[1]) )
