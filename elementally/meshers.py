@@ -216,7 +216,7 @@ def unit_square_2d(nx, ny):
   points.append( (0., 0.) )
   points.append( (1., 0.) )
   points.append( (1., 1.) )
-  poiints.append( (0.,1.) )
+  points.append( (0.,1.) )
 
   # Initialize segment list:
   facets = []

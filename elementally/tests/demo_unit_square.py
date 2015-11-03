@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+#
+# Demo of creating a mesh for the unit square
+# and testing the all_edges feature, which
+# will be important when considering mixed
+# formulations of e.g. Poisson, Stokes and 
+# Maxwell's equation.
+##--------------------------------------##
+
+import numpy as np
+import numpy.linalg as la
+import matplotlib.pyplot as plt
+
+import meshers
+
+############################################
+
+# Create mesh:
+mesh = meshers.unit_square_2d(10,10)
+
+points = np.array(mesh.points)
+
+
+# Plot mesh:
+fig = plt.figure(1)
+ax = fig.gca()
+
+ax.triplot(points[:,0], points[:,1], triangles=np.array(mesh.elements))
+
+plt.show(1)

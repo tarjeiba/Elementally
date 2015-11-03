@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+import sys
+
+import tests
+
+def main(args=None):
+  """The main routine."""
+  if args is None:
+    args = sys.argv[1:]
+
+  if len(sys.argv) <= 1:
+    print "Please specify which demo you want to runt."
+    print " 1. demo_unit_square"
+    return 1
+
+  if sys.argv[1] is not None and sys.argv[1] == 'demo_unit_square':
+    import tests.demo_unit_square
+    return 0
+  else:
+    print "Choose a demo to run."
+    return 1
+
+
+if __name__ == "__main__":
+  main()
