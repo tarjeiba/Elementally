@@ -209,6 +209,31 @@ def unit_square_2d(nx, ny):
   OUTPUT:
     mesh: Output mesh  
   """
+  # Initialize point list:
+  points = []
+  
+  # Add corner points:
+  points.append( (0., 0.) )
+  points.append( (1., 0.) )
+  points.append( (1., 1.) )
+  poiints.append( (0.,1.) )
+
+  # Initialize segment list:
+  facets = []
+  facets = connect_points(0, 3)
+  facets.append( (3, 0) )
+
+  # Facet markers (for boundary):
+  facet_markers = []
+  facet_markers.extend( [1] * 4 )
+
+  # Use meshpy.triangle to create mesh:
+  info = ElementallyMeshInfo()
+  info.set_points(points)
+  info.set_facets(facets)
+  mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)))
+
+  return mesh
 
 #---------------------------------------------|
 #   Functions useful for creating mesh.       |
