@@ -15,8 +15,6 @@ from collections import Counter     # To be used in edge_opposite_vertex
 class ElementallyMeshInfo(triangle.MeshInfo):
 
     # Attributes that can be set in this class.
-    neighbors = []
-    normals = []
     element_edges = []
     faces = []
     
@@ -114,8 +112,11 @@ class ElementallyMeshInfo(triangle.MeshInfo):
 
             normals.append( (diry/mag, -dirx/mag) ) 
 
-        self.neighbors = neighbors
-        self.normals = normals
+        # Set states:
+        self.__setstate__((0,0,[["neighbors", neighbors],\
+                                ["normals", normals]]))
+        #self.neighbors = neighbors
+        #self.normals = normals
 
     def edge_opposite_vertex(self, vertex, element):
         """
