@@ -29,8 +29,8 @@ print "Facet markers: ", np.array(mesh.facet_markers)
 if mesh.faces:
     print "Faces: ", np.array(mesh.faces)
     print "Face markers: ", np.array(mesh.face_markers)
-    #print "Neighbors: ", np.array(mesh.neighbors)
-    #print "Normals: ", np.array(mesh.normals)
+    print "Neighbors: ", np.array(mesh.neighbors)
+    print "Normals: ", np.array(mesh.normals)
 
     # Let's try the new edges_opposite_vertex:
     mesh.set_edges_of_elements()
