@@ -5,6 +5,11 @@ from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
 import meshers
 
+##############################################################
+##
+##              BASE ASSEMBLER CLASSES:
+##
+##############################################################
 class Assembly(object):
 
     def __init__(self):
@@ -119,8 +124,13 @@ class Assembly_3d(Assembly):
     def stiffness(self):
         pass
 
+###################################################
+##
+##            PROBLEM SPECIFIC ASSEMBLERS:
+##
+###################################################
 
-
+##    POISSON 2D    ##
 class Poisson_2d(Assembly_2d):
 
     def __init__(self, mesh, load_func):
@@ -139,6 +149,7 @@ class Poisson_2d(Assembly_2d):
             self.A[np.ix_(element, element)] += self.local_stiffness(local_points, coeffs)
             self.b[element] += self.local_loading(local_points, self.load_func, coeffs)
 
+##    HEAT EQUATION 2D    ##
 class Heat_Equation_2d(Assembly_2d):
 
     def __init__(self,mesh, load_func):
@@ -162,4 +173,10 @@ class Heat_Equation_2d(Assembly_2d):
             self.M[np.ix_(element, element)] += self.local_mass(local_points, coeffs)
             self.b[element] += self.local_loading(local_points, self.load_func, coeffs)
 
+"""
+##    MIXED POISSON   ##
+class MixedPoisson_2d(Assembly_2d):
 
+    # Initializer:
+    def __init__(self, mesh)
+"""
