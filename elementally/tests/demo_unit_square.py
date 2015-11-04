@@ -16,21 +16,24 @@ import meshers
 ############################################
 
 # Create mesh:
-mesh = meshers.unit_square_2d(2,2, generate_facets=True, \
+mesh = meshers.unit_square_2d(2,2, generate_faces=False, \
       generate_neighbors=True)
 
 points = np.array(mesh.points)
-faces = np.array(mesh.faces)
-face_markers = np.array(mesh.face_markers)
 print "Points: ", points
-print "Faces: ", faces
-print "Face markers: ", face_markers
 print "Elements: ", np.array(mesh.elements)
 print "Facets: ", np.array(mesh.facets)
 print "Facet markers: ", np.array(mesh.facet_markers)
 
-print "Neighbors: ", np.array(mesh.neighbors)
-print "Normals: ", np.array(mesh.normals)
+if mesh.faces:
+    print "Faces: ", np.array(mesh.faces)
+    print "Face markers: ", np.array(mesh.face_markers)
+    print "Neighbors: ", np.array(mesh.neighbors)
+    print "Normals: ", np.array(mesh.normals)
+
+    # Let's try the new edges_opposite_vertex:
+    mesh.set_edges_of_elements()
+    print "Element edges: ", np.array(mesh.element_edges)
 
 # Plot mesh:
 fig = plt.figure(1)

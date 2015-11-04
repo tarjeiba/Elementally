@@ -18,6 +18,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
     neighbors = []
     normals = []
     element_edges = []
+    faces = []
     
     def facet_interior_point(self, facet):
         """
@@ -112,7 +113,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         Function finding edge opposite vertex in element.
         Returns index of that edge.
         """
-        if vertex not in self.elements[elements]:
+        if vertex not in self.elements[element]:
             print "Vertex is not in element."
             return -1
 
@@ -121,7 +122,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         # We need to run through all edges...
         for i, edge in enumerate(self.faces):
             # Check if the edges are the same:
-            if (Counter(edge)==Counter(edge_def):
+            if (Counter(edge)==Counter(edge_def)):
                 return i
 
         # Couldn't find edge:
@@ -146,16 +147,19 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             return None
 
         # Iterate over all elements:
+        element_edges = []
         for i, element in enumerate(self.elements):
             # For each element we run through each vertex,
             # and find opposite edge:
-            element_edges = []
             temp = []
             for indv in xrange(3):
-                temp.append(self.edge_opposite_vertex(element[indv], i))
+                vertex = element[indv]
+                temp.append(self.edge_opposite_vertex(vertex, i))
 
             # Add this triple to element_edges:
             element_edges.append(temp)
+
+        self.element_edges = element_edges
 
 ######################################################
 ##
@@ -232,7 +236,7 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
 
     try:
         mesh = ElementallyMeshInfo()
-        vorout = ElementallyMeshInfo()  # To be used to get neighbors
+        vorout = triangle.MeshInfo()  # To be used to get neighbors
         # Interface for triangulate in backend Triangle is: 
         #   triangulate(options, input_info, output_mesh, voronoi_diagram)
         triangle.internals.triangulate(opts, mesh_info, mesh,
@@ -301,7 +305,7 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     mesh.order_facets()
     return mesh
 
-def unit_square_2d(nx, ny, generate_facets=False,
+def unit_square_2d(nx, ny, generate_faces=False,
                   generate_neighbors=False):
   """
   Function creating a 2D mesh of the unit square [0,1]^2.
@@ -334,9 +338,9 @@ def unit_square_2d(nx, ny, generate_facets=False,
   # Use meshpy.triangle to create mesh:
   info = ElementallyMeshInfo()
   info.set_points(points)
-  info.set_facets(facets)
+  info.set_facets(facets, facet_markers)
   mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)),
-        generate_faces=generate_facets,
+        generate_faces=generate_faces,
         generate_neighbors=generate_neighbors)
   
   #Order boundary facets:
