@@ -10,14 +10,14 @@ import meshpy.triangle as triangle
 import numpy as np
 import numpy.linalg as la
 
-from collections import Counter     # To be used in edge_opposite_vertex
+from collections import Counter     # To be used in edge_opposite_vertex, may even be unnecessary...
 
 class ElementallyMeshInfo(triangle.MeshInfo):
 
     # Attributes that can be set in this class.
     element_edges = []
-    faces = []
-    
+    #faces = []
+    neighbors = []    # I may have misunderstood what the neighbors constituent is...
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
@@ -103,7 +103,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         normals = []
         for i, face in enumerate(self.faces):
             # Append neighboring triangles of this edge:
-            neighbors.append((vorout.faces[i][0], vorout.faces[i][1]))      
+            neighbors.append( (vorout.faces[i][0], vorout.faces[i][1]) )      
             # Now to the normal of the edge to be pointing out of the triangle in
             # neighbors[i][0]:
             dirx = self.points[face[1]][0] - self.points[face[0]][0]
@@ -113,8 +113,8 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             normals.append( (diry/mag, -dirx/mag) ) 
 
         # Set states:
-        self.__setstate__((0,0,[["neighbors", neighbors],\
-                                ["normals", normals]]))
+        self.neighbors = neighbors
+        self.__setstate__((0,0,[["normals", normals]]))
         #self.neighbors = neighbors
         #self.normals = normals
 

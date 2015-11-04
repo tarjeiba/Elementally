@@ -1,5 +1,7 @@
 import numpy as np
 import numpy.linalg as la
+import scipy.sparse as as sp
+
 
 from integrators import gaussian as gauss
 from integrators import gl_quad_functions as gl
@@ -173,10 +175,62 @@ class Heat_Equation_2d(Assembly_2d):
             self.M[np.ix_(element, element)] += self.local_mass(local_points, coeffs)
             self.b[element] += self.local_loading(local_points, self.load_func, coeffs)
 
-"""
+
 ##    MIXED POISSON   ##
+########################
+# Here we come to a very different case than before.
+# First, we will now encounter two new types of elements,
+# different from the linear elements we've seen so far
+# (basis function defined by value at triangle vertices).
+# In addition, this is our first encounter with a mixed element method
+# (system of PDEs).
+# We consider, yet again Poisson equation, but now both u and sig = grad(u)
+# are primary unknowns. Different from before is that u will now be sought in
+# the space of piecewise constants over each triangle, and sig will be sought in 
+# the 1st degree Raviart-Thomas space; piecewise linear vector fields with continuous
+# flux across triangle edges.
 class MixedPoisson_2d(Assembly_2d):
 
     # Initializer:
-    def __init__(self, mesh)
-"""
+    def __init__(self, mesh, load_func)
+        # Input mesh needs to have all faces with face markers defined
+        # and properly set.
+        super(MixedPoisson_2d, self).__init__(mesh)
+        # Number of degrees of freedom:
+        self.dofs_u = len(mesh.elements)
+        self.dofs_sig = len(mesh.faces)
+        
+        # We use sparse matrices, and the lil_matrix structure, since the
+        # sparsity structure is going to change as we iterate over elements.
+        self.A = sp.lil_matrix( (dofs_sig, dofs_sig) )
+        self.B = sp.lil_matrix( (dofs_u, dofs_sig) )
+        self.b = np.zeros(dofs_u)
+
+        #self.assembler(mesh), needs to be implemented.
+
+
+    def ravthom_coeffs(self, mesh, ind_el):
+        """
+        Function to get the coefficients for 
+        the Raviart-Thomas basis functions
+        for an element. Each basis function is of the
+        form
+        phi[i](x) = a[i]*(x-points[element[i]]),
+        i.e, a scaled point source at each vertex,
+        and ravthom_coeffs(...) returns a as a list.
+        """
+        a = []
+        # iterate over edges:
+        element = mesh.elements[ind_el]
+        for i in range(3):
+            # Get vertex index:
+            ind_v = element[i]
+            # Get edge index:
+            ind_ed = mesh.element_edges[ind_el]
+
+            # Get vertex index of the first point on the edge:
+            ind_ved = mesh.faces[ind_ed][0]
+
+            #Get the relevant normal vector:
+            normal = mesh.normals[ind_ed]
+
