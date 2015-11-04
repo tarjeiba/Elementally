@@ -32,6 +32,12 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             integer value of remaining index
         """
         for element in self.elements:
+            # np.intersect1d: returns unique elements that are in both facet
+            # and element.
+            #
+            # np.all both points in facet are element.
+            #
+            # np.setdiff1d give out index in element, not in facet.
             if np.all(np.intersect1d(facet, element) == np.sort(facet)):
                 return np.setdiff1d(element, facet)[0]
         else:
@@ -75,7 +81,10 @@ class ElementallyMeshInfo(triangle.MeshInfo):
                 updated_facets.append(facet)
             else:
                 updated_facets.append( [facet[1], facet[0] ] )
-        self.set_facets(updated_facets, self.facet_markers)
+
+        # Something went wrong with using set_facets, so using __setstate__ instead.
+        self.__setstate__((0,0,[["facets",updated_facets]]))
+        #self.set_facets(updated_facets, self.facet_markers)
 
 
     def set_neighbors_from_voronoi(self, vorout):

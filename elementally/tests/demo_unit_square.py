@@ -19,6 +19,7 @@ import meshers
 mesh = meshers.unit_square_2d(2,2, generate_faces=False, \
       generate_neighbors=True)
 
+
 points = np.array(mesh.points)
 print "Points: ", points
 print "Elements: ", np.array(mesh.elements)
