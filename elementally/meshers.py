@@ -10,11 +10,15 @@ import meshpy.triangle as triangle
 import numpy as np
 import numpy.linalg as la
 
+from collections import Counter     # To be used in edge_opposite_vertex
 
 class ElementallyMeshInfo(triangle.MeshInfo):
 
+    # Attributes that can be set in this class.
     neighbors = []
     normals = []
+    element_edges = []
+    
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
@@ -103,7 +107,61 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         self.neighbors = neighbors
         self.normals = normals
 
+    def edge_opposite_vertex(self, vertex, element):
+        """
+        Function finding edge opposite vertex in element.
+        Returns index of that edge.
+        """
+        if vertex not in self.elements[elements]:
+            print "Vertex is not in element."
+            return -1
 
+        # Get edge definition (end points):
+        edge_def = [ind for ind in self.elements[element] if ind != vertex]
+        # We need to run through all edges...
+        for i, edge in enumerate(self.faces):
+            # Check if the edges are the same:
+            if (Counter(edge)==Counter(edge_def):
+                return i
+
+        # Couldn't find edge:
+        print "Couldn't find edge."
+        return -1
+    def set_edges_of_elements(self):
+        """
+        Function for generating an array that specifies
+        what edges  constitute the boundary of an
+        element. The result is ordered.
+        OUTPUT:
+          void, but element_edges is set. For instance
+          element_edges[i] is a triple of integers where
+          element_edges[i][0] is the global edge number
+          opposite the vertex self.elements[i][0], and so on.
+        """
+        # Make sure that faces are set
+        if not self.faces:
+            print "Mesh faces is not initialized,"
+            print "ElementallyMeshInfo::set_edges_of_elements() exits"
+            print "without doing anything."
+            return None
+
+        # Iterate over all elements:
+        for i, element in enumerate(self.elements):
+            # For each element we run through each vertex,
+            # and find opposite edge:
+            element_edges = []
+            temp = []
+            for indv in xrange(3):
+                temp.append(self.edge_opposite_vertex(element[indv], i))
+
+            # Add this triple to element_edges:
+            element_edges.append(temp)
+
+######################################################
+##
+##            BUILD METHOD
+##
+######################################################
 def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         volume_constraints=False, max_volume=None, allow_boundary_steiner=True,
         allow_volume_steiner=True, quality_meshing=True,
@@ -280,7 +338,9 @@ def unit_square_2d(nx, ny, generate_facets=False,
   mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)),
         generate_faces=generate_facets,
         generate_neighbors=generate_neighbors)
-
+  
+  #Order boundary facets:
+  mesh.order_facets()
   return mesh
 
 #---------------------------------------------|
