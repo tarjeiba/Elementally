@@ -17,7 +17,6 @@ class ElementallyMeshInfo(triangle.MeshInfo):
     # Attributes that can be set in this class.
     element_edges = []
     #faces = []
-    neighbors = []    # I may have misunderstood what the neighbors constituent is...
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
@@ -84,6 +83,24 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         self.__setstate__((0,0,[["facets",updated_facets]]))
         #self.set_facets(updated_facets, self.facet_markers)
 
+
+    def set_normals(self):
+        """Function to set normals, when triangle faces have been
+        previously set.
+        """
+        if not self.faces:
+            print "mesh.faces, has not been set, exiting."
+        
+        normals = []
+        # Iterate over faces:
+        for face in self.faces:
+            dirx = self.points[face[1]][0] - self.points[face[0]][0]
+            diry = self.points[face[1]][1] - self.points[face[0]][1]
+            mag = np.sqrt(dirx**2 + diry**2)
+            normals.append( (diry/mag, -dirx/mag) )
+
+        # Set mesh normals:
+        self.__setstate__((0,0,[["normals", normals]]))
 
     def set_neighbors_from_voronoi(self, vorout):
         """
@@ -180,7 +197,7 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         volume_constraints=False, max_volume=None, allow_boundary_steiner=True,
         allow_volume_steiner=True, quality_meshing=True,
         generate_edges=None, generate_faces=False, min_angle=None,
-        mesh_order=None, generate_neighbors=False):
+        mesh_order=None, generate_normals=False):
     """Triangulate the domain given in `mesh_info'.
 
     Taken with minute changes from triangle.build() written by Andreas Kloeckner.
@@ -219,11 +236,7 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         generate_faces = generate_edges
 
     if generate_faces:
-        opts += "e"
-        # THIS IS NEW: To get neighbors and normals
-        if generate_neighbors:
-            opts += "v" 
-      
+        opts += "e"      
 
     if not allow_volume_steiner:
         opts += "YY"
@@ -253,8 +266,8 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
                                        vorout, refinement_func)
 
         # If generate_neighbors is true, we alse want neighbors and normals:
-        if generate_neighbors and generate_faces:
-            mesh.set_neighbors_from_voronoi(vorout)
+        if generate_normals and generate_faces:
+            mesh.set_normals()
 
     finally:
         # restore previous locale if we've changed it
@@ -316,7 +329,7 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     return mesh
 
 def unit_square_2d(nx, ny, generate_faces=False,
-                  generate_neighbors=False):
+                  generate_normals=False):
   """
   Function creating a 2D mesh of the unit square [0,1]^2.
   INPUT:
@@ -351,7 +364,7 @@ def unit_square_2d(nx, ny, generate_faces=False,
   info.set_facets(facets, facet_markers)
   mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)),
         generate_faces=generate_faces,
-        generate_neighbors=generate_neighbors)
+        generate_normals=generate_normals)
   
   #Order boundary facets:
   mesh.order_facets()
