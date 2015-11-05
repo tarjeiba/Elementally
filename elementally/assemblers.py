@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.linalg as la
-import scipy.sparse as as sp
+import scipy.sparse as sp
 
 
 from integrators import gaussian as gauss
@@ -192,19 +192,21 @@ class Heat_Equation_2d(Assembly_2d):
 class MixedPoisson_2d(Assembly_2d):
 
     # Initializer:
-    def __init__(self, mesh, load_func)
+    def __init__(self, mesh, load_func):
         # Input mesh needs to have all faces with face markers defined
         # and properly set.
         super(MixedPoisson_2d, self).__init__(mesh)
         # Number of degrees of freedom:
+        self.points = np.array(mesh.points)
         self.dofs_u = len(mesh.elements)
         self.dofs_sig = len(mesh.faces)
         
         # We use sparse matrices, and the lil_matrix structure, since the
         # sparsity structure is going to change as we iterate over elements.
-        self.A = sp.lil_matrix( (dofs_sig, dofs_sig) )
-        self.B = sp.lil_matrix( (dofs_u, dofs_sig) )
-        self.b = np.zeros(dofs_u)
+        self.A = sp.lil_matrix( (self.dofs_sig, self.dofs_sig) )
+        self.B = sp.lil_matrix( (self.dofs_u, self.dofs_sig) )
+        self.b = np.zeros(self.dofs_u)
+        self.load_func = load_func
 
         self.assembler(mesh)
 
@@ -219,15 +221,14 @@ class MixedPoisson_2d(Assembly_2d):
         i.e, a scaled point source at each vertex,
         and ravthom_coeffs(...) returns a as a list.
         """
-        a = []
+        a = np.zeros(3)
         # iterate over edges:
         element = mesh.elements[ind_el]
         for i in range(3):
             # Get vertex index:
             ind_v = element[i]
             # Get edge index:
-            ind_ed = mesh.element_edges[ind_el]
-
+            ind_ed = mesh.element_edges[ind_el][i]
             # Get vertex index of the first point on the edge:
             ind_ved = mesh.faces[ind_ed][0]
 
@@ -239,7 +240,7 @@ class MixedPoisson_2d(Assembly_2d):
                        np.inner(self.points[ind_v], normal)
             
             # Append to a:
-            a.append(1./coeffinv)
+            a[i] = (1./coeffinv)
 
         # And finally return array:
         return a
@@ -297,18 +298,18 @@ class MixedPoisson_2d(Assembly_2d):
     ##    THE ASSEMBLER   ##
     def assembler(self, mesh):
         # We start be iterating over each element:
-        for ind_el, element in mesh.elements:
+        for ind_el, element in enumerate(mesh.elements):
             # Get the RT-coefficients:
             rt_coeffs = self.ravthom_coeffs(mesh,ind_el)
 
             # Get local points:
-            local_points = np.array( mesh.points[element] )
+            local_points = np.array( self.points[element] )
 
             # Add contributions to mass:
-            A[np.ix_(element,element)] += self.local_mass_sig(local_points, rt_coeffs)
+            self.A[np.ix_(element,element)] += self.local_mass_sig(local_points, rt_coeffs)
             
             # Add contribution to divergence matrix:
-            B[np.ix_([ind_el], element)] += self.local_div_matrix(local_points, rt_coeffs)
+            self.B[np.ix_([ind_el], element)] += self.local_div_matrix(local_points, rt_coeffs)
             
             # Add contribution to loading:
-            b[ind_el] += self.local_loading(local_points) 
+            self.b[ind_el] += self.local_loading(local_points) 

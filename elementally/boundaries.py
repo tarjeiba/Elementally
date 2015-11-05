@@ -76,7 +76,6 @@ def impose_dirichlet(boundary_dict, mesh,
     else:
         return res_matrices, loading_vec
 
-
 ################################################################
 ##
 ##                  NEUMANN BOUNDARY
@@ -127,7 +126,6 @@ def impose_neumann(boundary_dict,mesh, loading_vec,
                 lambda x: f(x) * np.inner(coeffs[:,1],np.append([1],x)) )
 
     return loading_vec
-
-
+ 
 
 
