@@ -206,7 +206,7 @@ class MixedPoisson_2d(Assembly_2d):
         self.B = sp.lil_matrix( (dofs_u, dofs_sig) )
         self.b = np.zeros(dofs_u)
 
-        #self.assembler(mesh), needs to be implemented.
+        self.assembler(mesh)
 
 
     def ravthom_coeffs(self, mesh, ind_el):
@@ -234,3 +234,81 @@ class MixedPoisson_2d(Assembly_2d):
             #Get the relevant normal vector:
             normal = mesh.normals[ind_ed]
 
+            # Get inverse of coefficient:
+            coeffinv = np.inner(self.points[ind_ved], normal)-\
+                       np.inner(self.points[ind_v], normal)
+            
+            # Append to a:
+            a.append(1./coeffinv)
+
+        # And finally return array:
+        return a
+        
+
+    def local_mass_sig(self, local_points, rt_coeffs):
+        """
+        Function for returning the local mass matrix for the Raviart-Thomas
+        space over an element.
+        """
+        # Initialize local matrix
+        A_loc = np.zeros( (3,3) )
+        
+
+        # Iterate over rows:
+        for alpha in xrange(3):
+            # Iterate over columns:
+            for beta in xrange(3):
+                A_loc[alpha, beta] += gauss.gaussian_quad_2d(local_points[0],\
+                                                            local_points[1],\
+                                                            local_points[2],\
+                                                            4,\
+                                           lambda x: np.inner(rt_coeffs[alpha]*(x-local_points[alpha]),\
+                                                              rt_coeffs[beta]*(x-local_points[beta])))
+
+
+        return A_loc
+
+    def local_div_matrix(self, local_points, rt_coeffs):
+        """
+        Function for return the local divergence matrix over an element.
+        """
+        B_loc = np.zeros( (1, 3) )
+        # Area of triangle:
+        area= gauss.gaussian_quad_2d(local_points[0],\
+                                     local_points[1],\
+                                     local_points[2],\
+                                     1,\
+                                     lambda x: 1.)
+        B_loc[0] = area*rt_coeffs
+        return B_loc
+
+    def local_loading(self, local_points):
+        """
+        Function for returning local loading function.
+        Recall that we test against piecewise constants
+        on one of the equations.
+        """
+        return -gauss.gaussian_quad_2d(local_points[0],\
+                                      local_points[1],\
+                                      local_points[2],\
+                                      4,\
+                                      self.load_func)
+
+    ##    THE ASSEMBLER   ##
+    def assembler(self, mesh):
+        # We start be iterating over each element:
+        for ind_el, element in mesh.elements:
+            # Get the RT-coefficients:
+            rt_coeffs = self.ravthom_coeffs(mesh,ind_el)
+
+            # Get local points:
+            local_points = np.array( mesh.points[element] )
+
+            # Add contributions to mass:
+            A[np.ix_(element,element)] += self.local_mass_sig(local_points, rt_coeffs)
+            
+            # Add contribution to divergence matrix:
+            B[np.ix_([ind_el], element)] += self.local_div_matrix(local_points, rt_coeffs)
+            
+            # Add contribution to loading:
+            b[ind_el] += self.local_loading(local_points) 
