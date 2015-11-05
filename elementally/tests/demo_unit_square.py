@@ -17,7 +17,8 @@ import meshers
 
 # Create mesh:
 mesh = meshers.unit_square_2d(2,2, generate_faces=True, \
-      generate_normals=True)
+      generate_normals=True,
+      generate_shared_edges=True)
 
 
 points = np.array(mesh.points)
@@ -31,6 +32,7 @@ if mesh.faces:
     print "Face markers: ", np.array(mesh.face_markers)
     print "Normals: ", np.array(mesh.normals)
 
+    print "Shared edges: ", mesh.shared_edges
     # Let's try the new edges_opposite_vertex:
     mesh.set_edges_of_elements()
     print "Element edges: ", np.array(mesh.element_edges)

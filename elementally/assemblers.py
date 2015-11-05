@@ -299,6 +299,8 @@ class MixedPoisson_2d(Assembly_2d):
     def assembler(self, mesh):
         # We start be iterating over each element:
         for ind_el, element in enumerate(mesh.elements):
+            # Get edge indices:
+            edges = mesh.element_edges[ind_el]
             # Get the RT-coefficients:
             rt_coeffs = self.ravthom_coeffs(mesh,ind_el)
 
@@ -306,10 +308,10 @@ class MixedPoisson_2d(Assembly_2d):
             local_points = np.array( self.points[element] )
 
             # Add contributions to mass:
-            self.A[np.ix_(element,element)] += self.local_mass_sig(local_points, rt_coeffs)
+            self.A[np.ix_(edges,edges)] += self.local_mass_sig(local_points, rt_coeffs)
             
             # Add contribution to divergence matrix:
-            self.B[np.ix_([ind_el], element)] += self.local_div_matrix(local_points, rt_coeffs)
+            self.B[np.ix_([ind_el], edges)] += self.local_div_matrix(local_points, rt_coeffs)
             
             # Add contribution to loading:
             self.b[ind_el] += self.local_loading(local_points) 

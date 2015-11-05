@@ -43,7 +43,7 @@ boundary_dict = {'dir': {1: g, 3: g}, 'neu': {2: h}}
 ########################
 ##    GENERATE MESH
 ########################
-N = 10
+N = 40
 mesh = meshers.unit_square_2d(N, N,\
           generate_faces=True,\
           generate_normals=True)
@@ -65,6 +65,12 @@ A = assembly.A
 b = assembly.b
 B = assembly.B
 
+# Check sparsity pattern:
+A = sp.csr_matrix(A)
+B = sp.csr_matrix(B)
+
+plt.spy(A)
+plt.show()
 
 
 ########################

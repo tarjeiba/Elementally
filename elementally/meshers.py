@@ -9,6 +9,7 @@
 import meshpy.triangle as triangle
 import numpy as np
 import numpy.linalg as la
+import scipy.sparse as sp
 
 from collections import Counter     # To be used in edge_opposite_vertex, may even be unnecessary...
 
@@ -16,7 +17,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
 
     # Attributes that can be set in this class.
     element_edges = []
-    #faces = []
+    shared_edges = []   #Array for shared edges
     def facet_interior_point(self, facet):
         """
         For a vector facet on the form of (p0, p1), return the remaining third
@@ -102,7 +103,7 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         # Set mesh normals:
         self.__setstate__((0,0,[["normals", normals]]))
 
-    def set_neighbors_from_voronoi(self, vorout):
+    def set_shared_edges_from_voronoi(self, vorout):
         """
         Function for using a Voronoi diagram data structure to get
         neighbors and face normals of the mesh.
@@ -116,24 +117,13 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             print "mesh.faces is not initialized."
             return None
 
-        neighbors = []
-        normals = []
+        self.shared_edges = np.zeros( (len(self.faces), 2), dtype='int' )
+
         for i, face in enumerate(self.faces):
             # Append neighboring triangles of this edge:
-            neighbors.append( (vorout.faces[i][0], vorout.faces[i][1]) )      
-            # Now to the normal of the edge to be pointing out of the triangle in
-            # neighbors[i][0]:
-            dirx = self.points[face[1]][0] - self.points[face[0]][0]
-            diry = self.points[face[1]][1] - self.points[face[0]][1]
-            mag = np.sqrt(dirx**2 + diry**2)
-
-            normals.append( (diry/mag, -dirx/mag) ) 
+            self.shared_edges[i] = [vorout.faces[i][0], vorout.faces[i][1]]
 
         # Set states:
-        self.neighbors = neighbors
-        self.__setstate__((0,0,[["normals", normals]]))
-        #self.neighbors = neighbors
-        #self.normals = normals
 
     def edge_opposite_vertex(self, vertex, element):
         """
@@ -155,6 +145,25 @@ class ElementallyMeshInfo(triangle.MeshInfo):
         # Couldn't find edge:
         print "Couldn't find edge."
         return -1
+
+    # To get edges of elements more efficiently,
+    # we need a nodes-to-edge mapping. Luckily we have all
+    # the structure we need to make such a mapping:
+    def nodes_to_edge(self):
+        """
+        Function for creating a sparse, symmetric
+        nodes to edge mapping.
+        """
+        res = sp.lil_matrix((len(self.points),len(self.points)), dtype='int')
+        # Iterate over edges:
+        for ind_ed, edge in enumerate(self.faces):
+            k = edge[0]
+            l = edge[1]
+            res[k,l] = ind_ed
+            res[l,k] = ind_ed
+
+        return res
+  
     def set_edges_of_elements(self):
         """
         Function for generating an array that specifies
@@ -173,20 +182,21 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             print "without doing anything."
             return None
 
+        # Create nodes-to-edge mapping:
+        N2ED = self.nodes_to_edge()
+
+        # Initialize array:
+        self.element_edges = np.zeros( (len(self.elements), 3), dtype='int')
         # Iterate over all elements:
-        element_edges = []
         for i, element in enumerate(self.elements):
-            # For each element we run through each vertex,
-            # and find opposite edge:
-            temp = []
-            for indv in xrange(3):
-                vertex = element[indv]
-                temp.append(self.edge_opposite_vertex(vertex, i))
+            k,l,m = element
 
-            # Add this triple to element_edges:
-            element_edges.append(temp)
+            # Set edges of element:
+            self.element_edges[i,0] = N2ED[l,m]
+            self.element_edges[i,1] = N2ED[m,k]
+            self.element_edges[i,2] = N2ED[k,l]
 
-        self.element_edges = element_edges
+
 
 ######################################################
 ##
@@ -197,7 +207,8 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         volume_constraints=False, max_volume=None, allow_boundary_steiner=True,
         allow_volume_steiner=True, quality_meshing=True,
         generate_edges=None, generate_faces=False, min_angle=None,
-        mesh_order=None, generate_normals=False):
+        mesh_order=None, generate_normals=False,
+        generate_shared_edges=False):
     """Triangulate the domain given in `mesh_info'.
 
     Taken with minute changes from triangle.build() written by Andreas Kloeckner.
@@ -236,7 +247,10 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         generate_faces = generate_edges
 
     if generate_faces:
-        opts += "e"      
+        opts += "e"
+        # Addition: Get shared edges structure:
+        if generate_shared_edges:
+            opts += "v"      
 
     if not allow_volume_steiner:
         opts += "YY"
@@ -269,6 +283,8 @@ def build(mesh_info, verbose=False, refinement_func=None, attributes=False,
         if generate_normals and generate_faces:
             mesh.set_normals()
 
+        if generate_shared_edges and generate_faces:
+            mesh.set_shared_edges_from_voronoi(vorout)
     finally:
         # restore previous locale if we've changed it
         if have_locale:
@@ -329,7 +345,8 @@ def quarter_annulus_2d(volume_tolerance, angle_start, angle_end,
     return mesh
 
 def unit_square_2d(nx, ny, generate_faces=False,
-                  generate_normals=False):
+                  generate_normals=False,
+                  generate_shared_edges=False):
   """
   Function creating a 2D mesh of the unit square [0,1]^2.
   INPUT:
@@ -364,7 +381,8 @@ def unit_square_2d(nx, ny, generate_faces=False,
   info.set_facets(facets, facet_markers)
   mesh = build(info, max_volume = 0.5/(float(nx)*float(ny)),
         generate_faces=generate_faces,
-        generate_normals=generate_normals)
+        generate_normals=generate_normals,
+        generate_shared_edges=generate_shared_edges)
   
   #Order boundary facets:
   mesh.order_facets()
