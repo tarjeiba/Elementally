@@ -43,13 +43,14 @@ boundary_dict = {'dir': {1: g, 3: g}, 'neu': {2: h}}
 ########################
 ##    GENERATE MESH
 ########################
-N = 40
+N = 20
 mesh = meshers.unit_square_2d(N, N,\
           generate_faces=True,\
           generate_normals=True)
 
 print "Finished creating mesh, starting on edge connectivity"
 print "Total number of edges: ", len(mesh.faces)
+print "Total number of triangles: ", len(mesh.elements)
 t1 = time.time()
 # Need edge connectivity:
 mesh.set_edges_of_elements()
@@ -69,9 +70,20 @@ B = assembly.B
 A = sp.csr_matrix(A)
 B = sp.csr_matrix(B)
 
-plt.spy(A)
+#Check assembly time:
+t3 = time.time()
+print "Assembly time: ", t3-t2
+
+# Assemble total matrix:
+C = sp.bmat( [[A, B.T],\
+                  [B, None]])
+
+plt.spy(C)
 plt.show()
 
+##########################
+##  BOUNDARY CONDITIONS:
+##########################
 
 ########################
 ##    POST-PROCESSING:

@@ -123,29 +123,6 @@ class ElementallyMeshInfo(triangle.MeshInfo):
             # Append neighboring triangles of this edge:
             self.shared_edges[i] = [vorout.faces[i][0], vorout.faces[i][1]]
 
-        # Set states:
-
-    def edge_opposite_vertex(self, vertex, element):
-        """
-        Function finding edge opposite vertex in element.
-        Returns index of that edge.
-        """
-        if vertex not in self.elements[element]:
-            print "Vertex is not in element."
-            return -1
-
-        # Get edge definition (end points):
-        edge_def = [ind for ind in self.elements[element] if ind != vertex]
-        # We need to run through all edges...
-        for i, edge in enumerate(self.faces):
-            # Check if the edges are the same:
-            if (Counter(edge)==Counter(edge_def)):
-                return i
-
-        # Couldn't find edge:
-        print "Couldn't find edge."
-        return -1
-
     # To get edges of elements more efficiently,
     # we need a nodes-to-edge mapping. Luckily we have all
     # the structure we need to make such a mapping:
