@@ -76,14 +76,36 @@ print "Assembly time: ", t3-t2
 
 # Assemble total matrix:
 C = sp.bmat( [[A, B.T],\
-                  [B, None]])
-
-plt.spy(C)
-plt.show()
+              [B, None]],\
+              format='lil')
 
 ##########################
 ##  BOUNDARY CONDITIONS:
 ##########################
+# Impose Dirichlet weakly:
+g = np.zeros(assembly.dofs_sig)
+boundaries.impose_dirichlet_mixed_poisson(boundary_dict,\
+            mesh, g,\
+            nodes, weights)
+
+
+# Total right hand side:
+F = np.concatenate( (g,b) )
+
+#########################
+##    SOLVE:
+#########################
+# We try to use a iterative solver:
+
+t1 = time.time()
+X, info = spla.gmres(C,F)
+t2 = time.time()
+print "Time to solve: ", t2-t1
+
+# Split solutions:
+print X
+sigma = X[:assembly.dofs_sig]
+u = X[assembly.dofs_sig:]
 
 ########################
 ##    POST-PROCESSING:
@@ -94,7 +116,11 @@ elements = np.array(mesh.elements)
 fig = plt.figure(1)
 ax = fig.gca()
 
-ax.triplot(points[:,0], points[:,1],\
-          triangles=elements)
+print u
+print sigma
+# Plot u:
+ax.tripcolor(points[:,0], points[:,1], facecolors=u,\
+          triangles=elements,\
+          edgecolors='k')
 
 plt.show()

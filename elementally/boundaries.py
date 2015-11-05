@@ -76,6 +76,32 @@ def impose_dirichlet(boundary_dict, mesh,
     else:
         return res_matrices, loading_vec
 
+def impose_dirichlet_mixed_poisson(boundary_dict, mesh, loading_vec,\
+              nodes, weights, time=None):
+    """Function for imposing Dirichlet boundary conditions for
+    a mixed Poisson problem.
+    """
+    # Iterate over faces:
+    for i, face in enumerate(mesh.faces):
+        #First, check if face is on boundary:
+        if (mesh.face_markers[i] != 0):
+            # Get points:
+            p1 = np.array(mesh.points[face[0]])
+            p2 = np.array(mesh.points[face[1]])
+            
+            # Get integrand:
+            if time is not None:
+                f = lambda x:\
+                    boundary_dict['dir'][mesh.face_markers[i]](x,time)
+            else:
+                f = lambda x:\
+                    boundary_dict['dir'][mesh.face_markers[i]](x)
+
+            # Add contribution:
+            loading_vec[i] += gauss.gaussian_line(p1,p2,\
+                nodes, weights, f)
+
+
 ################################################################
 ##
 ##                  NEUMANN BOUNDARY
@@ -84,7 +110,8 @@ def impose_dirichlet(boundary_dict, mesh,
 
 def impose_neumann(boundary_dict,mesh, loading_vec,
                    nodes, weights, time=None):
-    """Function for imposing Neumann boundary conditions.
+    """
+    Function for imposing Neumann boundary conditions.
     INPUT:
         boundary_dict: Dictionary with boundary data.
         mesh: ElementallyMeshInfo.
