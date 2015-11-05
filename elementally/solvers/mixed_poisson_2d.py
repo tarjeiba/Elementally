@@ -43,6 +43,7 @@ boundary_dict = {'dir': {1: g, 3: g}, 'neu': {2: h}}
 ########################
 ##    GENERATE MESH
 ########################
+t1 = time.time()
 N = 20
 mesh = meshers.unit_square_2d(N, N,\
           generate_faces=True,\
@@ -51,12 +52,11 @@ mesh = meshers.unit_square_2d(N, N,\
 print "Finished creating mesh, starting on edge connectivity"
 print "Total number of edges: ", len(mesh.faces)
 print "Total number of triangles: ", len(mesh.elements)
-t1 = time.time()
 # Need edge connectivity:
 mesh.set_edges_of_elements()
 
 t2 = time.time()
-print "Time: ", t2-t1
+print "Meshing time: ", t2-t1
 
 ########################
 ##    ASSEMBLY:
@@ -82,28 +82,45 @@ C = sp.bmat( [[A, B.T],\
 ##########################
 ##  BOUNDARY CONDITIONS:
 ##########################
+t1 = time.time()
 # Impose Dirichlet weakly:
-g = np.zeros(assembly.dofs_sig)
+G = np.zeros(assembly.dofs_sig)
 boundaries.impose_dirichlet_mixed_poisson(boundary_dict,\
-            mesh, g,\
+            mesh, G,\
             nodes, weights)
 
 
 # Total right hand side:
-F = np.concatenate( (g,b) )
+F = np.concatenate( (G,b) )
 
+# Impose Neumann strongly:
+boundaries.impose_neumann_mixed_poisson(boundary_dict, mesh,\
+                    nodes, weights,\
+                    F, C)
+# Set to CSR-format:
+C.tocsr()
+t2 = time.time()
+print "Time to impose BC: ", t2-t1
 #########################
 ##    SOLVE:
 #########################
 # We try to use a iterative solver:
 
 t1 = time.time()
-X, info = spla.gmres(C,F)
+# NOTE: spla.minres, although fast, is as of yet
+# not properly tested by SciPy.
+# Seems like lgmres is a viable option concerning
+# speed for now. Another advantage here is that symmetry
+# is not assumed.
+X, info = spla.lgmres(C,F)
 t2 = time.time()
 print "Time to solve: ", t2-t1
+if not info:
+    print "Iterative solver exited successfully."
+else:
+    print "Iterative solver had an issue. Exit status: ", info
 
 # Split solutions:
-print X
 sigma = X[:assembly.dofs_sig]
 u = X[assembly.dofs_sig:]
 
@@ -116,11 +133,8 @@ elements = np.array(mesh.elements)
 fig = plt.figure(1)
 ax = fig.gca()
 
-print u
-print sigma
 # Plot u:
 ax.tripcolor(points[:,0], points[:,1], facecolors=u,\
           triangles=elements,\
           edgecolors='k')
-
 plt.show()

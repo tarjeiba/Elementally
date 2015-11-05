@@ -349,8 +349,8 @@ def unit_square_2d(nx, ny, generate_faces=False,
   facets.append( (3, 0) )
 
   # Facet markers (for boundary):
-  facet_markers = []
-  facet_markers.extend( [1] * 4 )
+  facet_markers = [1, 2, 1, 2]    #Mixed Neu/Dir
+  #facet_markers.extend( [1] * 4 )    # Pure Dirichlet
 
   # Use meshpy.triangle to create mesh:
   info = ElementallyMeshInfo()

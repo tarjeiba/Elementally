@@ -2,11 +2,6 @@ import numpy as np
 import scipy.linalg as la
 from integrators import gaussian as gauss
 
-
-
-
-
-
 ###############################################
 ##
 ##          DIRICHLET BOUNDARY:
@@ -84,7 +79,7 @@ def impose_dirichlet_mixed_poisson(boundary_dict, mesh, loading_vec,\
     # Iterate over faces:
     for i, face in enumerate(mesh.faces):
         #First, check if face is on boundary:
-        if (mesh.face_markers[i] != 0):
+        if (mesh.face_markers[i] in boundary_dict['dir'].keys()):
             # Get points:
             p1 = np.array(mesh.points[face[0]])
             p2 = np.array(mesh.points[face[1]])
@@ -155,4 +150,35 @@ def impose_neumann(boundary_dict,mesh, loading_vec,
     return loading_vec
  
 
+def impose_neumann_mixed_poisson(boundary_dict, mesh,\
+                                  nodes, weights,\
+                                  loading_vec, C_tot, time=None):
+    """
+    Function for imposing Neumann boundary conditions on a
+    mixed Poisson problem. In this setting Neumann BC are 
+    imposed strongly. Opposite from what we are used to.
+    """
+    # Iterate over edges:
+    for i, face in enumerate(mesh.faces):
+        # Check if face is on Neumann boundary:
+        if mesh.face_markers[i] in boundary_dict['neu'].keys():
+            # Get points:
+            p1 = np.array(mesh.points[face[0]])
+            p2 = np.array(mesh.points[face[1]])
+            length = np.sqrt(np.inner(p2-p1,p2-p1))
+            
+            # Get integrand:
+            if time is not None:
+                f = lambda x: boundary_dict['neu'][mesh.face_markers[i]](x,time)
+            else:
+                f = lambda x: boundary_dict['neu'][mesh.face_markers[i]](x)
 
+            # Set element on loading vector:
+            loading_vec[i] = gauss.gaussian_line(p1,p2,\
+                              nodes, weights,\
+                              f)/length
+
+            # Zero out row of matrix:
+            C_tot[i] = 0.
+            # Set diagonal element:
+            C_tot[i,i] = 1.
