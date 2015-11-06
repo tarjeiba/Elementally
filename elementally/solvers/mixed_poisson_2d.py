@@ -27,7 +27,7 @@ def f(x):
 
 # Dirichlet:
 def g(x):
-    return 0.
+    return x[0]
 
 # Neumann:
 def h(x):
@@ -44,7 +44,7 @@ boundary_dict = {'dir': {1: g, 3: g}, 'neu': {2: h}}
 ##    GENERATE MESH
 ########################
 t1 = time.time()
-N = 20
+N = 40
 mesh = meshers.unit_square_2d(N, N,\
           generate_faces=True,\
           generate_normals=True)
